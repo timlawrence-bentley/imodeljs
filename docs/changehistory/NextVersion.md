@@ -3,6 +3,10 @@ ignore: true
 ---
 # NextVersion
 
+## Add Node 14 support
+
+With Node 14 moving to LTS on October 27th, iModel.js has been updated to add support.  iModel.js now supports Node >10.16, 12.x, and 14.x.
+
 ## Color mix property added to thematic gradient settings
 
 Thematic display gradient properties now supports a colorMix value for mixing the color of background map terrain or point clouds in with the thematic gradient color.  The `colorMix` property of [ThematicGradientSettings]($common) is a value between 0.0 and 1.0, defaulting to 0.0, which determines the percentage of the original color to blend in with the thematic gradient color (so 0.0 will be only the thematic gradient color, and 1.0 will be only the original terrain map or point cloud color).
