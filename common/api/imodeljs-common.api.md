@@ -3438,6 +3438,8 @@ export abstract class IModel implements IModelProps {
     getConnectionProps(): IModelConnectionProps;
     static getDefaultSubCategoryId(categoryId: Id64String): Id64String;
     getEcefTransform(): Transform;
+    // @internal (undocumented)
+    protected abstract getEventSourceProps(): IModelEventSourceProps;
     getRpcProps(): IModelRpcProps;
     get globalOrigin(): Point3d;
     set globalOrigin(org: Point3d);
@@ -3464,7 +3466,7 @@ export abstract class IModel implements IModelProps {
 }
 
 // @internal (undocumented)
-export type IModelConnectionProps = IModelProps & IModelRpcProps;
+export type IModelConnectionProps = IModelProps & IModelRpcProps & IModelEventSourceProps;
 
 // @beta
 export interface IModelCoordinatesRequestProps {
@@ -3510,6 +3512,12 @@ export interface IModelEncryptionProps {
 // @public
 export class IModelError extends BentleyError {
     constructor(errorNumber: number | IModelStatus | DbResult | BentleyStatus | BriefcaseStatus | RepositoryStatus | ChangeSetStatus | RpcInterfaceStatus | AuthStatus, message: string, log?: LogFunction, category?: string, getMetaData?: GetMetaDataFunction);
+}
+
+// @internal
+export interface IModelEventSourceProps {
+    // (undocumented)
+    eventSourceName: string;
 }
 
 // @public
@@ -3888,8 +3896,17 @@ export class MapImagerySettings {
     toJSON(): MapImageryProps;
 }
 
+// @beta
+export interface MapLayerKey {
+    // (undocumented)
+    key: string;
+    // (undocumented)
+    value: string;
+}
+
 // @alpha
 export interface MapLayerProps {
+    accessKey?: MapLayerKey;
     formatId?: string;
     isBase?: boolean;
     maxZoom?: number;
@@ -3905,6 +3922,8 @@ export interface MapLayerProps {
 
 // @alpha
 export class MapLayerSettings {
+    // (undocumented)
+    readonly accessKey?: MapLayerKey;
     get allSubLayersInvisible(): boolean;
     clone(changedProps: MapLayerProps): MapLayerSettings;
     // @internal (undocumented)
@@ -4254,14 +4273,13 @@ export abstract class NativeAppRpcInterface extends RpcInterface {
     closeBriefcase(_key: BriefcaseKey): Promise<void>;
     deleteBriefcase(_key: BriefcaseKey): Promise<void>;
     downloadRequestCompleted(_key: BriefcaseKey): Promise<void>;
-    fetchEvents(_iModelToken: IModelRpcProps, _maxToFetch: number): Promise<QueuedEvent[]>;
     getBriefcases(): Promise<BriefcaseProps[]>;
     static getClient(): NativeAppRpcInterface;
     getConfig(): Promise<any>;
     static readonly interfaceName = "NativeAppRpcInterface";
     static interfaceVersion: string;
     log(_timestamp: number, _level: LogLevel, _category: string, _message: string, _metaData?: any): Promise<void>;
-    openBriefcase(_key: BriefcaseKey, _openOptions?: OpenBriefcaseOptions): Promise<IModelProps>;
+    openBriefcase(_key: BriefcaseKey, _openOptions?: OpenBriefcaseOptions): Promise<IModelConnectionProps>;
     overrideInternetConnectivity(_overriddenBy: OverriddenBy, _status?: InternetConnectivityStatus): Promise<void>;
     requestCancelDownloadBriefcase(_key: BriefcaseKey): Promise<boolean>;
     requestDownloadBriefcase(_requestProps: RequestBriefcaseProps, _downloadOptions: DownloadBriefcaseOptions, _reportProgress: boolean): Promise<BriefcaseProps>;
@@ -5127,13 +5145,9 @@ export enum QueryResponseStatus {
 
 // @internal
 export interface QueuedEvent {
-    // (undocumented)
     data: any;
-    // (undocumented)
     eventId: number;
-    // (undocumented)
     eventName: string;
-    // (undocumented)
     namespace: string;
 }
 
@@ -5791,9 +5805,9 @@ export type RpcProtocolEventHandler = (type: RpcProtocolEvent, object: RpcReques
 
 // @alpha
 export class RpcPushChannel<T> {
-    constructor(name: string, service?: RpcPushService);
-    // @internal
-    static delete(name: string, service?: RpcPushService): void;
+    static create<T>(name: string, service?: RpcPushService): RpcPushChannel<T>;
+    // (undocumented)
+    dispose(): void;
     // @internal (undocumented)
     static enabled: boolean;
     // (undocumented)
@@ -5801,7 +5815,10 @@ export class RpcPushChannel<T> {
     // (undocumented)
     get id(): string;
     // (undocumented)
+    get isDisposed(): boolean;
+    // (undocumented)
     readonly name: string;
+    static obtain<T>(name: string, service?: RpcPushService): RpcPushChannel<T>;
     // (undocumented)
     readonly service: RpcPushService;
     // (undocumented)

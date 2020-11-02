@@ -229,13 +229,14 @@ public;ImageSourceFormat
 internal;ImdlFlags
 internal;ImdlHeader 
 public;class IModel 
-internal;IModelConnectionProps = IModelProps & IModelRpcProps
+internal;IModelConnectionProps = IModelProps & IModelRpcProps & IModelEventSourceProps
 beta;IModelCoordinatesRequestProps
 beta;IModelCoordinatesResponseProps
 internal;IModelElectronApi 
 internal;IModelElectronIpc
 public;IModelEncryptionProps
 public;IModelError 
+internal;IModelEventSourceProps
 public;IModelNotFoundResponse 
 public;IModelProps
 internal;class IModelReadRpcInterface 
@@ -265,6 +266,7 @@ beta;LineStyleProps
 public;LocalAlignedBox3d = Range3d
 alpha;MapImageryProps
 alpha;MapImagerySettings
+beta;MapLayerKey
 alpha;MapLayerProps
 alpha;MapLayerSettings
 alpha;MapSubLayerProps
