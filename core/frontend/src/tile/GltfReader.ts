@@ -798,7 +798,7 @@ export abstract class GltfReader {
   protected async loadTextureImage(imageJson: any, samplerJson: any, _isTransparent: boolean): Promise<RenderTexture | undefined> {
     try {
       const binaryImageJson = (imageJson.extensions && imageJson.extensions.KHR_binary_glTF) ? JsonUtils.asObject(imageJson.extensions.KHR_binary_glTF) : imageJson;
-      // const bufferView = this._bufferViews[binaryImageJson.bufferView];
+      const _bufferView = this._bufferViews[binaryImageJson.bufferView];
       const mimeType = JsonUtils.asString(binaryImageJson.mimeType);
       const format = getImageSourceFormatForMimeType(mimeType);
       if (undefined === format)
@@ -809,7 +809,7 @@ export abstract class GltfReader {
         (undefined !== samplerJson.wrapS || undefined !== samplerJson.wrapT))
         textureType = RenderTexture.Type.TileSection;
       const textureParams = new RenderTexture.Params(undefined, textureType);
-      // const offset = bufferView.byteOffset;
+      const _offset = _bufferView.byteOffset;
 
       /* -----------------------------------
           const jpegArray = this._binaryData.slice(offset, offset + bufferView.byteLength);
@@ -823,10 +823,10 @@ export abstract class GltfReader {
           }
         ------------------------------------- */
 
-      // const bytes = this._binaryData.subarray(offset, offset + bufferView.byteLength);
-      // const imageSource = new ImageSource(bytes, format);
+      const _bytes = this._binaryData.subarray(_offset, _offset + _bufferView.byteLength);
+      const _imageSource = new ImageSource(_bytes, format);
       try {
-        // const _image = await imageElementFromImageSource(imageSource);
+        // const _image = await imageElementFromImageSource(_imageSource);
         // return this._isCanceled ? undefined : this._system.createTextureFromImage(_image, _isTransparent && ImageSourceFormat.Png === format, this._iModel, textureParams);
 
         const dxt = await this._loadTexture2DImageDataForDXT("http://localhost:3000/multicolored_cloud_dxt1.dds");
