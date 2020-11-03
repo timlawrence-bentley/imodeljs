@@ -112,18 +112,12 @@ function _loadDXT(dxtInfo: DXTInfo) {
   let width = dxtInfo.width;
   let height = dxtInfo.height;
 
-  // Loop through each mip level of compressed texture data provided and upload it to the given texture.
   for (let i = 0; i < dxtInfo.numLevels; ++i) {
-    // Determine how big this level of compressed texture data is in bytes.
     const levelSize = _calculateTextureLevelSizeInBytes(s3tcExt, dxtInfo.internalFormat, dxtInfo.width, dxtInfo.height);
-    // Get a view of the bytes for this level of DXT data.
     const dxtLevel = new Uint8Array(dxtInfo.dxtData.buffer, dxtInfo.dxtData.byteOffset + offset, levelSize);
-    // Upload!
     gl.compressedTexImage2D(gl.TEXTURE_2D, i, dxtInfo.internalFormat, width, height, 0, dxtLevel);
-    // The next mip level will be half the height and width of this one.
     width = width >> 1;
     height = height >> 1;
-    // Advance the offset into the compressed texture data past the current mip level's data.
     offset += levelSize;
   }
 
