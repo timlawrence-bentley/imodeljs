@@ -14,6 +14,7 @@ import { GL } from "./GL";
 import { UniformHandle } from "./Handle";
 import { OvrFlags, TextureUnit } from "./RenderFlags";
 import { System } from "./System";
+import { loadTexture2DImageDataForDXT } from "./TextureDXT";
 
 type CanvasOrImage = HTMLCanvasElement | HTMLImageElement;
 
@@ -89,6 +90,17 @@ function loadTexture2DImageData(handle: TextureHandle, params: Texture2DCreatePa
 }
 
 function loadTextureFromBytes(handle: TextureHandle, params: Texture2DCreateParams, bytes?: Texture2DData): void { loadTexture2DImageData(handle, params, bytes); }
+
+function loadTextureFromDXT(handle: TextureHandle, params: Texture2DCreateParams): void {
+  const tex = handle.getHandle()!;
+
+  // Bind the texture object; make sure we do not interfere with other active textures
+  System.instance.activateTexture2d(TextureUnit.Zero, tex);
+
+  loadTexture2DImageDataForDXT(params.dxtBuffer!);
+
+  System.instance.bindTexture2d(TextureUnit.Zero, undefined);
+}
 
 /** Associate cube texture data with a WebGLTexture from an image. */
 function loadTextureCubeImageData(handle: TextureHandle, params: TextureCubeCreateParams, images: CanvasOrImage[]): void {
@@ -170,7 +182,8 @@ class Texture2DCreateParams {
     public useMipMaps?: TextureFlag,
     public interpolate?: TextureFlag,
     public anisotropicFilter?: TextureAnisotropicFilter,
-    public dataBytes?: Uint8Array) { }
+    public dataBytes?: Uint8Array,
+    public dxtBuffer?: ArrayBuffer) { }
 
   public static createForData(width: number, height: number, data: Texture2DData, preserveData = false, wrapMode = GL.Texture.WrapMode.ClampToEdge, format = GL.Texture.Format.Rgba) {
     const bytes = (preserveData && data instanceof Uint8Array) ? data : undefined;
@@ -188,6 +201,10 @@ class Texture2DCreateParams {
   public static createForAttachment(width: number, height: number, format: GL.Texture.Format, dataType: GL.Texture.DataType) {
     return new Texture2DCreateParams(width, height, format, dataType, GL.Texture.WrapMode.ClampToEdge,
       (tex: TextureHandle, params: Texture2DCreateParams) => loadTextureFromBytes(tex, params), undefined, undefined);
+  }
+
+  public static createForDXT(image: ArrayBuffer) {
+    return new Texture2DCreateParams(0, 0, 0, 0, 0, (tex: TextureHandle, params: Texture2DCreateParams) => loadTextureFromDXT(tex, params), undefined, undefined, undefined, undefined, image);
   }
 
   public static createForImage(image: HTMLImageElement, hasAlpha: boolean, type: RenderTexture.Type) {
@@ -336,6 +353,10 @@ export abstract class TextureHandle implements WebGLDisposable {
     return Texture2DHandle.createForImage(image, hasAlpha, type);
   }
 
+  public static createForDXT(image: ArrayBuffer) {
+    return Texture2DHandle.createForDXT(image);
+  }
+
   /** Create a cube map texture from six HTMLImageElement objects. */
   public static createForCubeImages(posX: HTMLImageElement, negX: HTMLImageElement, posY: HTMLImageElement, negY: HTMLImageElement, posZ: HTMLImageElement, negZ: HTMLImageElement) {
     return TextureCubeHandle.createForCubeImages(posX, negX, posY, negY, posZ, negZ);
@@ -466,6 +487,10 @@ export class Texture2DHandle extends TextureHandle {
   /** Create a 2D texture from an HTMLImageElement. */
   public static createForImage(image: HTMLImageElement, hasAlpha: boolean, type: RenderTexture.Type) {
     return this.create(Texture2DCreateParams.createForImage(image, hasAlpha, type));
+  }
+
+  public static createForDXT(image: ArrayBuffer) {
+    return this.create(Texture2DCreateParams.createForDXT(image));
   }
 
   private constructor(glTexture: WebGLTexture, params: Texture2DCreateParams) {

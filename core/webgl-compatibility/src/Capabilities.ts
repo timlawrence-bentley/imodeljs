@@ -13,7 +13,8 @@ export type WebGLExtensionName =
   "WEBGL_draw_buffers" | "OES_element_index_uint" | "OES_texture_float" | "OES_texture_float_linear" |
   "OES_texture_half_float" | "OES_texture_half_float_linear" | "EXT_texture_filter_anisotropic" | "WEBGL_depth_texture" |
   "EXT_color_buffer_float" | "EXT_shader_texture_lod" | "ANGLE_instanced_arrays" | "OES_vertex_array_object" | "WEBGL_lose_context" |
-  "EXT_frag_depth" | "EXT_disjoint_timer_query" | "EXT_disjoint_timer_query_webgl2" | "OES_standard_derivatives" | "EXT_float_blend";
+  "EXT_frag_depth" | "EXT_disjoint_timer_query" | "EXT_disjoint_timer_query_webgl2" | "OES_standard_derivatives" | "EXT_float_blend" |
+  "WEBGL_compressed_texture_s3tc";
 
 const knownExtensions: WebGLExtensionName[] = [
   "WEBGL_draw_buffers",
@@ -34,6 +35,7 @@ const knownExtensions: WebGLExtensionName[] = [
   "EXT_disjoint_timer_query_webgl2",
   "OES_standard_derivatives",
   "EXT_float_blend",
+  "WEBGL_compressed_texture_s3tc",
 ];
 
 /** Describes the type of a render target. Used by Capabilities to represent maximum precision render target available on host system.
@@ -134,6 +136,7 @@ export class Capabilities {
   public get supportsFragDepth(): boolean { return this._isWebGL2 || this.queryExtensionObject<EXT_frag_depth>("EXT_frag_depth") !== undefined; }
   public get supportsDisjointTimerQuery(): boolean { return (this._isWebGL2 && this.queryExtensionObject<any>("EXT_disjoint_timer_query_webgl2") !== undefined) || this.queryExtensionObject<any>("EXT_disjoint_timer_query") !== undefined; }
   public get supportsStandardDerivatives(): boolean { return this._isWebGL2 || this.queryExtensionObject<OES_standard_derivatives>("OES_standard_derivatives") !== undefined; }
+  public get supportsDXTTextures(): boolean { return this.queryExtensionObject<WEBGL_compressed_texture_s3tc>("WEBGL_compressed_texture_s3tc") !== undefined; }
 
   public get supportsMRTTransparency(): boolean { return this.maxColorAttachments >= 2; }
   public get supportsMRTPickShaders(): boolean { return this.maxColorAttachments >= 3; }
@@ -168,6 +171,7 @@ export class Capabilities {
     WebGLFeature.FragDepth,
     WebGLFeature.StandardDerivatives,
     WebGLFeature.AntiAliasing,
+    WebGLFeature.CompressedTextures,
   ];
   public static readonly requiredFeatures: WebGLFeature[] = [
     WebGLFeature.UintElementIndex,
@@ -210,6 +214,8 @@ export class Capabilities {
       features.push(WebGLFeature.StandardDerivatives);
     if (this.supportsAntiAliasing)
       features.push(WebGLFeature.AntiAliasing);
+    if (this.supportsDXTTextures)
+      features.push(WebGLFeature.CompressedTextures);
 
     if (DepthType.TextureUnsignedInt24Stencil8 === this._maxDepthType)
       features.push(WebGLFeature.DepthTexture);

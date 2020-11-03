@@ -229,6 +229,10 @@ export class IdMap implements WebGLDisposable {
     return this.createTexture(params, TextureHandle.createForImage(image, hasAlpha, params.type));
   }
 
+  private createTextureFromDXT(image: ArrayBuffer, params: RenderTexture.Params): RenderTexture | undefined {
+    return this.createTexture(params, TextureHandle.createForDXT(image));
+  }
+
   private createTextureFromCubeImages(posX: HTMLImageElement, negX: HTMLImageElement, posY: HTMLImageElement, negY: HTMLImageElement, posZ: HTMLImageElement, negZ: HTMLImageElement, params: RenderTexture.Params) {
     return this.createTexture(params, TextureHandle.createForCubeImages(posX, negX, posY, negY, posZ, negZ));
   }
@@ -244,6 +248,11 @@ export class IdMap implements WebGLDisposable {
   public getTextureFromImage(image: HTMLImageElement, hasAlpha: boolean, params: RenderTexture.Params): RenderTexture | undefined {
     const tex = this.findTexture(params.key);
     return undefined !== tex ? tex : this.createTextureFromImage(image, hasAlpha, params);
+  }
+
+  public getTextureFromDXT(image: ArrayBuffer, params: RenderTexture.Params): RenderTexture | undefined {
+    const tex = this.findTexture(params.key);
+    return undefined !== tex ? tex : this.createTextureFromDXT(image, params);
   }
 
   public getTextureFromCubeImages(posX: HTMLImageElement, negX: HTMLImageElement, posY: HTMLImageElement, negY: HTMLImageElement, posZ: HTMLImageElement, negZ: HTMLImageElement, params: RenderTexture.Params): RenderTexture | undefined {
@@ -550,6 +559,10 @@ export class System extends RenderSystem implements RenderSystemDebugControl, Re
   /** Attempt to create a texture for the given iModel using an ImageBuffer. */
   public createTextureFromImageBuffer(image: ImageBuffer, imodel: IModelConnection, params: RenderTexture.Params): RenderTexture | undefined {
     return this.getIdMap(imodel).getTexture(image, params);
+  }
+
+  public createTextureFromDXT(image: ArrayBuffer, imodel: IModelConnection, params: RenderTexture.Params): RenderTexture | undefined {
+    return this.getIdMap(imodel).getTextureFromDXT(image, params);
   }
 
   /** Attempt to create a texture for the given iModel using an HTML image element. */

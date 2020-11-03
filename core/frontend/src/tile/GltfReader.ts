@@ -790,10 +790,15 @@ export abstract class GltfReader {
       await Promise.all(promises);
   }
 
-  protected async loadTextureImage(imageJson: any, samplerJson: any, isTransparent: boolean): Promise<RenderTexture | undefined> {
+  private async _loadTexture2DImageDataForDXT(dxtSrc: any): Promise<ArrayBuffer> {
+    const resp = await fetch(dxtSrc);
+    return resp.arrayBuffer();
+  }
+
+  protected async loadTextureImage(imageJson: any, samplerJson: any, _isTransparent: boolean): Promise<RenderTexture | undefined> {
     try {
       const binaryImageJson = (imageJson.extensions && imageJson.extensions.KHR_binary_glTF) ? JsonUtils.asObject(imageJson.extensions.KHR_binary_glTF) : imageJson;
-      const bufferView = this._bufferViews[binaryImageJson.bufferView];
+      // const bufferView = this._bufferViews[binaryImageJson.bufferView];
       const mimeType = JsonUtils.asString(binaryImageJson.mimeType);
       const format = getImageSourceFormatForMimeType(mimeType);
       if (undefined === format)
@@ -804,7 +809,7 @@ export abstract class GltfReader {
         (undefined !== samplerJson.wrapS || undefined !== samplerJson.wrapT))
         textureType = RenderTexture.Type.TileSection;
       const textureParams = new RenderTexture.Params(undefined, textureType);
-      const offset = bufferView.byteOffset;
+      // const offset = bufferView.byteOffset;
 
       /* -----------------------------------
           const jpegArray = this._binaryData.slice(offset, offset + bufferView.byteLength);
@@ -818,11 +823,14 @@ export abstract class GltfReader {
           }
         ------------------------------------- */
 
-      const bytes = this._binaryData.subarray(offset, offset + bufferView.byteLength);
-      const imageSource = new ImageSource(bytes, format);
+      // const bytes = this._binaryData.subarray(offset, offset + bufferView.byteLength);
+      // const imageSource = new ImageSource(bytes, format);
       try {
-        const image = await imageElementFromImageSource(imageSource);
-        return this._isCanceled ? undefined : this._system.createTextureFromImage(image, isTransparent && ImageSourceFormat.Png === format, this._iModel, textureParams);
+        // const _image = await imageElementFromImageSource(imageSource);
+        // return this._isCanceled ? undefined : this._system.createTextureFromImage(_image, _isTransparent && ImageSourceFormat.Png === format, this._iModel, textureParams);
+
+        const dxt = await this._loadTexture2DImageDataForDXT("http://localhost:3000/multicolored_cloud_dxt1.dds");
+        return this._isCanceled ? undefined : this._system.createTextureFromDXT(dxt, this._iModel, textureParams);
       } catch (_) {
         return undefined;
       }
