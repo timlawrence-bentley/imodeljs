@@ -46,12 +46,13 @@
 
     > .icon {
 
-      display:            block;
+      display:            flex;
       position:           absolute;
       right:              0;
       top:                0;
       bottom:             0;
       padding:            $uicore-bordered-padding;
+      align-items:        center;
 
       font-size:          $uicore-font-size;
       font-weight:        normal;

@@ -803,6 +803,10 @@
       "allowedCategories": [ "frontend" ]
     },
     {
+      "name": "react-table",
+      "allowedCategories": [ "internal" ]
+    },
+    {
       "name": "react-test-renderer",
       "allowedCategories": [ "frontend", "internal" ]
     },
