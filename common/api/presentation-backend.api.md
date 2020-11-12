@@ -275,6 +275,8 @@ export interface PresentationPropsDeprecated extends PresentationManagerProps {
     // @internal
     clientManagerFactory?: (clientId: string, props: PresentationManagerProps) => PresentationManager;
     requestTimeout?: number;
+    // (undocumented)
+    test?: GrigasTest;
     unusedClientLifetime?: number;
 }
 

@@ -17,10 +17,16 @@ import { TemporaryStorage } from "./TemporaryStorage";
 
 const defaultRequestTimeout: number = 90000;
 
+interface GrigasTest {
+  wip: number;
+}
+
 /**
  * @public @deprecated
  */
 export interface PresentationPropsDeprecated extends PresentationManagerProps {
+  test?: GrigasTest;
+
   /**
    * Factory method for creating separate managers for each client
    * @internal
