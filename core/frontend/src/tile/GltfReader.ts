@@ -829,7 +829,7 @@ export abstract class GltfReader {
         // const _image = await imageElementFromImageSource(_imageSource);
         // return this._isCanceled ? undefined : this._system.createTextureFromImage(_image, _isTransparent && ImageSourceFormat.Png === format, this._iModel, textureParams);
 
-        const dxt = await this._loadTexture2DImageDataForDXT("http://localhost:3000/temp.dds");
+        const dxt = await this._loadTexture2DImageDataForDXT("http://localhost:3000/temp.dxt");
         return this._isCanceled ? undefined : this._system.createTextureFromDXT(dxt, this._iModel, textureParams);
       } catch (_) {
         return undefined;

@@ -9,125 +9,72 @@
 import { System } from "./System";
 
 interface DXTInfo {
-  dxtData: any;
+  dxtPixelData: Uint8Array;
   width: number;
   height: number;
-  numLevels: number;
-  internalFormat: number;
+  glInternalFormat: number;
 }
 
-// See the following link describing the format of a DDS file:
-// http://msdn.microsoft.com/en-us/library/bb943991.aspx/
-class DDSFormatConstants {
-  public static readonly magic = 0x20534444;
-  public static readonly mipMapCount = 0x20000;
-  public static readonly fourCC = 0x4;
-  public static readonly headerLength = 31;
-  public static readonly headerMagic = 0;
-  public static readonly headerSize = 1;
-  public static readonly headerFlags = 2;
-  public static readonly headerHeight = 3;
-  public static readonly headerWidth = 4;
-  public static readonly headerMipMapCount = 7;
-  public static readonly headerPfFlags = 20;
-  public static readonly headerPfFourCC = 21;
-  public static readonly fourCCDXT1 = _buildFourCC("DXT1");
-  public static readonly fourCCDXT3 = _buildFourCC("DXT3");
-  public static readonly fourCCDXT5 = _buildFourCC("DXT5");
+class DXTInfoConstants {
+  public static readonly ndxFormat = 0;
+  public static readonly ndxWidth = 1;
+  public static readonly ndxHeight = 2;
+  public static readonly codeDXT1 = 1;
+  public static readonly codeDXT3 = 3;
+  public static readonly codeDXT5 = 5;
+  public static readonly infoLength = 3; // 3x uint32
 }
 
-function _buildFourCC(value: string) {
-  return value.charCodeAt(0) + (value.charCodeAt(1) << 8) + (value.charCodeAt(2) << 16) + (value.charCodeAt(3) << 24);
-}
+function _readDXTInfo(s3tcExt: WEBGL_compressed_texture_s3tc, arrayBuffer: ArrayBuffer): DXTInfo | undefined {
+  const header = new Uint32Array(arrayBuffer, 0, DXTInfoConstants.infoLength);
 
-// See the following link for a discussion of the DXT format:
-// http://www.khronos.org/registry/webgl/extensions/WEBGL_compressed_texture_s3tc/
-function _readDDSHeader(s3tcExt: WEBGL_compressed_texture_s3tc, arrayBuffer: ArrayBuffer): DXTInfo | undefined {
-  const header = new Int32Array(arrayBuffer, 0, DDSFormatConstants.headerLength);
-
-  if (header[DDSFormatConstants.headerMagic] !== DDSFormatConstants.magic) {
-    return undefined; // not a valid DDS file
-  }
-
-  if (!(header[DDSFormatConstants.headerPfFlags] & DDSFormatConstants.fourCC)) {
-    return undefined; // not a valid DDS format
-  }
-
-  // Find the proper internal format.
-  const fourCC = header[DDSFormatConstants.headerPfFourCC];
-  let internalFormat;
-  switch (fourCC) {
-    case DDSFormatConstants.fourCCDXT1:
-      internalFormat = s3tcExt.COMPRESSED_RGB_S3TC_DXT1_EXT;
+  const format = header[DXTInfoConstants.ndxFormat];
+  let glInternalFormat;
+  switch (format) {
+    case DXTInfoConstants.codeDXT1:
+      glInternalFormat = s3tcExt.COMPRESSED_RGB_S3TC_DXT1_EXT;
       break;
 
-    case DDSFormatConstants.fourCCDXT3:
-      internalFormat = s3tcExt.COMPRESSED_RGBA_S3TC_DXT3_EXT;
+    case DXTInfoConstants.codeDXT3:
+      glInternalFormat = s3tcExt.COMPRESSED_RGBA_S3TC_DXT3_EXT;
       break;
 
-    case DDSFormatConstants.fourCCDXT5:
-      internalFormat = s3tcExt.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+    case DXTInfoConstants.codeDXT5:
+      glInternalFormat = s3tcExt.COMPRESSED_RGBA_S3TC_DXT5_EXT;
       break;
 
     default:
       return undefined;
   }
 
-  // Determine how many mipmap levels the DDS file contains.
-  let numLevels = 1;
-  if (header[DDSFormatConstants.headerFlags] & DDSFormatConstants.mipMapCount)
-    numLevels = Math.max(1, header[DDSFormatConstants.headerMipMapCount]);
+  const width = header[DXTInfoConstants.ndxWidth];
+  const height = header[DXTInfoConstants.ndxHeight];
+  const dataOffset = 3 * 4;
+  const dxtPixelData = new Uint8Array(arrayBuffer, dataOffset);
 
-  const width = header[DDSFormatConstants.headerWidth];
-  const height = header[DDSFormatConstants.headerHeight];
-  const dataOffset = header[DDSFormatConstants.headerSize] + 4;
-  const dxtData = new Uint8Array(arrayBuffer, dataOffset);
-
-  return { dxtData, width, height, numLevels, internalFormat };
+  return { dxtPixelData, width, height, glInternalFormat };
 }
 
-function _calculateTextureLevelSizeInBytes(s3tcExt: WEBGL_compressed_texture_s3tc, format: number, width: number, height: number): number {
-  switch (format) {
-    case s3tcExt.COMPRESSED_RGB_S3TC_DXT1_EXT:
-      return ((width + 3) >> 2) * ((height + 3) >> 2) * 8;
+// ###TODO: this function will be helpful when tracking the GPU memory usage
+// function _calculateTextureSizeInBytes(s3tcExt: WEBGL_compressed_texture_s3tc, format: number, width: number, height: number): number {
+//   switch (format) {
+//     case s3tcExt.COMPRESSED_RGB_S3TC_DXT1_EXT:
+//       return ((width + 3) / 4) * ((height + 3) >> 2) * 8;
 
-    case s3tcExt.COMPRESSED_RGBA_S3TC_DXT3_EXT:
-    case s3tcExt.COMPRESSED_RGBA_S3TC_DXT5_EXT:
-      return ((width + 3) >> 2) * ((height + 3) >> 2) * 16;
+//     case s3tcExt.COMPRESSED_RGBA_S3TC_DXT3_EXT:
+//     case s3tcExt.COMPRESSED_RGBA_S3TC_DXT5_EXT:
+//       return ((width + 3) / 4) * ((height + 3) >> 2) * 16;
 
-    default:
-      return 0;
-  }
-}
+//     default:
+//       return 0;
+//   }
+// }
 
 function _loadDXT(dxtInfo: DXTInfo) {
   const gl = System.instance.context;
-
-  const s3tcExt = System.instance.capabilities.queryExtensionObject<WEBGL_compressed_texture_s3tc>("WEBGL_compressed_texture_s3tc")!;
-
-  let offset = 0;
-
-  // const levelZeroSize = _calculateTextureLevelSizeInBytes(s3tcExt, dxtInfo.internalFormat, dxtInfo.width, dxtInfo.height);
-
-  let width = dxtInfo.width;
-  let height = dxtInfo.height;
-
-  for (let i = 0; i < dxtInfo.numLevels; ++i) {
-    const levelSize = _calculateTextureLevelSizeInBytes(s3tcExt, dxtInfo.internalFormat, dxtInfo.width, dxtInfo.height);
-    const dxtLevel = new Uint8Array(dxtInfo.dxtData.buffer, dxtInfo.dxtData.byteOffset + offset, levelSize);
-    gl.compressedTexImage2D(gl.TEXTURE_2D, i, dxtInfo.internalFormat, width, height, 0, dxtLevel);
-    width = width >> 1;
-    height = height >> 1;
-    offset += levelSize;
-  }
-
-  if (dxtInfo.numLevels > 1) { // we have several levels of detail
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-  } else {
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  }
+  gl.compressedTexImage2D(gl.TEXTURE_2D, 0, dxtInfo.glInternalFormat, dxtInfo.width, dxtInfo.height, 0, dxtInfo.dxtPixelData);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 }
 
 /** Associate texture data with a WebGLTexture from a DXT-compressed image.
@@ -138,7 +85,7 @@ export function loadTexture2DImageDataForDXT(dxtBuffer: ArrayBuffer): boolean {
   if (undefined === s3tcExt)
     return false; // DXT GL extension not available
 
-  const dxtInfo = _readDDSHeader(s3tcExt, dxtBuffer);
+  const dxtInfo = _readDXTInfo(s3tcExt, dxtBuffer);
   if (undefined === dxtInfo)
     return false; // Failed to read DDS header
 
