@@ -49,10 +49,10 @@ export function ReactTableDemo() {
   return (
     <table {...getTableProps()} style={{ border: "solid 1px blue" }}>
       <thead>
-        {headerGroups.map((headerGroup: HeaderGroup) => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map((column) => (
-              <th
+        {headerGroups.map((headerGroup: HeaderGroup, trIndex: number) => (
+          <tr key={`tr-head ${trIndex}`} {...headerGroup.getHeaderGroupProps()}>
+            {headerGroup.headers.map((column, thIndex: number) => (
+              <th key={`th ${thIndex}`}
                 {...column.getHeaderProps()}
                 style={{
                   borderBottom: "solid 3px red",
@@ -68,13 +68,13 @@ export function ReactTableDemo() {
         ))}
       </thead>
       <tbody {...getTableBodyProps()}>
-        {rows.map((row: Row) => {
-          prepareRow(row)
+        {rows.map((row: Row, rowIndex: number) => {
+          prepareRow(row);
           return (
-            <tr {...row.getRowProps()}>
-              {row.cells.map((cell: Cell) => {
+            <tr key={`tr ${rowIndex}`} {...row.getRowProps()}>
+              {row.cells.map((cell: Cell, cellIndex: number) => {
                 return (
-                  <td
+                  <td key={`td ${cellIndex}`}
                     {...cell.getCellProps()}
                     style={{
                       padding: "10px",
@@ -84,10 +84,10 @@ export function ReactTableDemo() {
                   >
                     {cell.render("Cell")}
                   </td>
-                )
+                );
               })}
             </tr>
-          )
+          );
         })}
       </tbody>
     </table>
