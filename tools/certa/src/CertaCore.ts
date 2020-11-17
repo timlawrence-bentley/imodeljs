@@ -35,12 +35,15 @@ CertaCore.registerTestRunner("chrome", ChromeTestRunner);
 CertaCore.registerTestRunner("electron", ElectronTestRunner);
 
 export async function certa(environment: string, config: CertaConfig): Promise<void> {
+  console.error("CERTA START");
   const runner = CertaCore.getTestRunner(environment);
 
   // If we're going to measure code coverage, we should stop now and let an `nyc`-wrapped child process take it from here.
   const alreadyInNyc = process.env.NYC_CWD !== undefined;
   if (config.cover && runner.supportsCoverage && !alreadyInNyc)
     return process.exit(await relaunchForCoverage());
+
+  console.error("CERTA RELAUNCHED FOR COVER");
 
   if (runner.initialize)
     await runner.initialize(config);
@@ -52,8 +55,11 @@ export async function certa(environment: string, config: CertaConfig): Promise<v
   // Source map any errors in this backend process
   require("source-map-support").install();
 
+  console.error("CERTA LOADING BACKEND");
+
   if (config.backendInitModule)
     await require(config.backendInitModule);
 
+  console.error("CERTA CALLING RUNTESTS");
   await runner.runTests(config);
 }

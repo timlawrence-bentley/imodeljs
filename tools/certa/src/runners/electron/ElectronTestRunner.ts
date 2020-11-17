@@ -12,10 +12,12 @@ import { CertaConfig } from "../../CertaConfig";
 export class ElectronTestRunner {
   public static readonly supportsCoverage = false;
   public static async initialize(config: CertaConfig): Promise<void> {
+    console.error("INITIALIZE START");
     // Restart under electron if we're running in node
     if (!("electron" in process.versions))
       return process.exit(await relaunchInElectron());
 
+    console.error("RELAUNCHED");
     // If we are running in electron, we need to append any chromium CLI switches ***before*** the 'ready' event of the app module is emitted.
     const { app } = require("electron");
     if (config.debug)
@@ -23,10 +25,12 @@ export class ElectronTestRunner {
   }
 
   public static async runTests(config: CertaConfig): Promise<void> {
+    console.error("RUNTESTS START");
     const { BrowserWindow, app, ipcMain } = require("electron"); // eslint-disable-line @typescript-eslint/naming-convention
 
     const timeout = new Promise((_resolve, reject) => setTimeout(() => reject("Timed out after 2 minutes when starting electron"), 2 * 60 * 1000));
     await Promise.race([app.whenReady(), timeout]);
+    console.error("ELECTRON READY");
 
     const rendererWindow = new BrowserWindow({
       show: config.debug,
@@ -35,6 +39,7 @@ export class ElectronTestRunner {
         enableRemoteModule: true,
       },
     });
+    console.error("BROWSERWINDOW CREATED");
 
     const exitElectronApp = (exitCode: number) => {
       // Passing exit code to parent process doesn't seem to work anymore with electron 10 - sending message with status instead
@@ -66,6 +71,7 @@ export class ElectronTestRunner {
 
     rendererWindow.webContents.once("did-finish-load", async () => {
       try {
+        console.error("DFL HANDLER STARTED");
         const initScriptPath = require.resolve("./initElectronTests.js");
         const startTests = async () => rendererWindow.webContents.executeJavaScript(`
         var _CERTA_CONFIG = ${JSON.stringify(config)};
@@ -79,12 +85,15 @@ export class ElectronTestRunner {
           rendererWindow.webContents.once("did-finish-load", startTests);
           return;
         }
-
+        console.error("STARTING TESTS");
         await startTests();
       } catch ({ message, stack }) {
+        console.error("ERROR IN DFL HANDLER");
         ipcRenderer.send("certa-error", { message, stack });
       }
     });
+    console.error("HANDLERS REGISTERED");
     await rendererWindow.loadFile(path.join(__dirname, "../../../public/index.html"));
+    console.error("LOADED");
   }
 }
