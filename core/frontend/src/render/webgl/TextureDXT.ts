@@ -25,8 +25,11 @@ class DXTInfoConstants {
   public static readonly infoLength = 3; // 3x uint32
 }
 
-function _readDXTInfo(s3tcExt: WEBGL_compressed_texture_s3tc, arrayBuffer: ArrayBuffer): DXTInfo | undefined {
-  const header = new Uint32Array(arrayBuffer, 0, DXTInfoConstants.infoLength);
+function _readDXTInfo(s3tcExt: WEBGL_compressed_texture_s3tc, byteBuffer: Uint8Array): DXTInfo | undefined {
+  const dxtHeaderBuffer = new Uint8Array(12);
+  dxtHeaderBuffer.set(byteBuffer.subarray(0, 11), 0);
+
+  const header = new Uint32Array(dxtHeaderBuffer.buffer, 0, 3);
 
   const format = header[DXTInfoConstants.ndxFormat];
   let glInternalFormat;
@@ -49,10 +52,11 @@ function _readDXTInfo(s3tcExt: WEBGL_compressed_texture_s3tc, arrayBuffer: Array
 
   const width = header[DXTInfoConstants.ndxWidth];
   const height = header[DXTInfoConstants.ndxHeight];
-  const dataOffset = 3 * 4;
-  const dxtPixelData = new Uint8Array(arrayBuffer, dataOffset);
 
-  return { dxtPixelData, width, height, glInternalFormat };
+  const dxtBuffer = new Uint8Array(byteBuffer.byteLength - 12);
+  dxtBuffer.set(byteBuffer.subarray(12, byteBuffer.byteLength - 12), 0);
+
+  return { dxtPixelData: dxtBuffer, width, height, glInternalFormat };
 }
 
 // ###TODO: this function will be helpful when tracking the GPU memory usage
@@ -80,7 +84,7 @@ function _loadDXT(dxtInfo: DXTInfo) {
 /** Associate texture data with a WebGLTexture from a DXT-compressed image.
  * @internal
 */
-export function loadTexture2DImageDataForDXT(dxtBuffer: ArrayBuffer): boolean {
+export function loadTexture2DImageDataForDXT(dxtBuffer: Uint8Array): boolean {
   const s3tcExt = System.instance.capabilities.queryExtensionObject<WEBGL_compressed_texture_s3tc>("WEBGL_compressed_texture_s3tc");
   if (undefined === s3tcExt)
     return false; // DXT GL extension not available

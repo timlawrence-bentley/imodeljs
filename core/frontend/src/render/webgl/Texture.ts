@@ -183,7 +183,7 @@ class Texture2DCreateParams {
     public interpolate?: TextureFlag,
     public anisotropicFilter?: TextureAnisotropicFilter,
     public dataBytes?: Uint8Array,
-    public dxtBuffer?: ArrayBuffer) { }
+    public dxtBuffer?: Uint8Array) { }
 
   public static createForData(width: number, height: number, data: Texture2DData, preserveData = false, wrapMode = GL.Texture.WrapMode.ClampToEdge, format = GL.Texture.Format.Rgba) {
     const bytes = (preserveData && data instanceof Uint8Array) ? data : undefined;
@@ -203,7 +203,7 @@ class Texture2DCreateParams {
       (tex: TextureHandle, params: Texture2DCreateParams) => loadTextureFromBytes(tex, params), undefined, undefined);
   }
 
-  public static createForDXT(image: ArrayBuffer) {
+  public static createForDXT(image: Uint8Array) {
     return new Texture2DCreateParams(0, 0, 0, 0, 0, (tex: TextureHandle, params: Texture2DCreateParams) => loadTextureFromDXT(tex, params), undefined, undefined, undefined, undefined, image);
   }
 
@@ -353,7 +353,7 @@ export abstract class TextureHandle implements WebGLDisposable {
     return Texture2DHandle.createForImage(image, hasAlpha, type);
   }
 
-  public static createForDXT(image: ArrayBuffer) {
+  public static createForDXT(image: Uint8Array) {
     return Texture2DHandle.createForDXT(image);
   }
 
@@ -489,7 +489,7 @@ export class Texture2DHandle extends TextureHandle {
     return this.create(Texture2DCreateParams.createForImage(image, hasAlpha, type));
   }
 
-  public static createForDXT(image: ArrayBuffer) {
+  public static createForDXT(image: Uint8Array) {
     return this.create(Texture2DCreateParams.createForDXT(image));
   }
 

@@ -229,7 +229,7 @@ export class IdMap implements WebGLDisposable {
     return this.createTexture(params, TextureHandle.createForImage(image, hasAlpha, params.type));
   }
 
-  private createTextureFromDXT(image: ArrayBuffer, params: RenderTexture.Params): RenderTexture | undefined {
+  private createTextureFromDXT(image: Uint8Array, params: RenderTexture.Params): RenderTexture | undefined {
     return this.createTexture(params, TextureHandle.createForDXT(image));
   }
 
@@ -250,7 +250,7 @@ export class IdMap implements WebGLDisposable {
     return undefined !== tex ? tex : this.createTextureFromImage(image, hasAlpha, params);
   }
 
-  public getTextureFromDXT(image: ArrayBuffer, params: RenderTexture.Params): RenderTexture | undefined {
+  public getTextureFromDXT(image: Uint8Array, params: RenderTexture.Params): RenderTexture | undefined {
     const tex = this.findTexture(params.key);
     return undefined !== tex ? tex : this.createTextureFromDXT(image, params);
   }
@@ -561,7 +561,7 @@ export class System extends RenderSystem implements RenderSystemDebugControl, Re
     return this.getIdMap(imodel).getTexture(image, params);
   }
 
-  public createTextureFromDXT(image: ArrayBuffer, imodel: IModelConnection, params: RenderTexture.Params): RenderTexture | undefined {
+  public createTextureFromDXT(image: Uint8Array, imodel: IModelConnection, params: RenderTexture.Params): RenderTexture | undefined {
     return this.getIdMap(imodel).getTextureFromDXT(image, params);
   }
 

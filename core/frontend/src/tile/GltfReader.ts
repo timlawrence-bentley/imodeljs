@@ -800,9 +800,9 @@ export abstract class GltfReader {
       const binaryImageJson = (imageJson.extensions && imageJson.extensions.KHR_binary_glTF) ? JsonUtils.asObject(imageJson.extensions.KHR_binary_glTF) : imageJson;
       const _bufferView = this._bufferViews[binaryImageJson.bufferView];
       const mimeType = JsonUtils.asString(binaryImageJson.mimeType);
-      const format = getImageSourceFormatForMimeType(mimeType);
-      if (undefined === format)
-        return undefined;
+      const format = getImageSourceFormatForMimeType(mimeType)!;
+      // if (undefined === format)
+      //   return undefined;
 
       let textureType = RenderTexture.Type.Normal;
       if (undefined !== samplerJson &&
@@ -823,14 +823,18 @@ export abstract class GltfReader {
           }
         ------------------------------------- */
 
+      console.log("mimeType = " + mimeType);
       const _bytes = this._binaryData.subarray(_offset, _offset + _bufferView.byteLength);
-      const _imageSource = new ImageSource(_bytes, format);
       try {
-        // const _image = await imageElementFromImageSource(_imageSource);
-        // return this._isCanceled ? undefined : this._system.createTextureFromImage(_image, _isTransparent && ImageSourceFormat.Png === format, this._iModel, textureParams);
-
-        const dxt = await this._loadTexture2DImageDataForDXT("http://localhost:3000/temp.dxt");
-        return this._isCanceled ? undefined : this._system.createTextureFromDXT(dxt, this._iModel, textureParams);
+        if ("image/dxt" !== mimeType) {
+          const _imageSource = new ImageSource(_bytes, format);
+          const _image = await imageElementFromImageSource(_imageSource);
+          return this._isCanceled ? undefined : this._system.createTextureFromImage(_image, _isTransparent && ImageSourceFormat.Png === format, this._iModel, textureParams);
+        } else {
+          // const dxt = new Uint8Array(await this._loadTexture2DImageDataForDXT("http://localhost:3000/temp.dxt"));
+          // return this._isCanceled ? undefined : this._system.createTextureFromDXT(dxt, this._iModel, textureParams);
+          return this._isCanceled ? undefined : this._system.createTextureFromDXT(_bytes, this._iModel, textureParams);
+        }
       } catch (_) {
         return undefined;
       }
