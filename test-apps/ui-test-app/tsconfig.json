@@ -19,6 +19,7 @@
     ]
   },
   "include": [
+    "./src/react-table-config.d.ts",
     "./src/**/*.ts",
     "./src/**/*.tsx"
   ],

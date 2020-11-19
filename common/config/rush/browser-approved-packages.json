@@ -816,11 +816,15 @@
     },
     {
       "name": "react-virtualized-auto-sizer",
-      "allowedCategories": [ "frontend" ]
+      "allowedCategories": [ "frontend", "internal" ]
     },
     {
       "name": "react-window",
-      "allowedCategories": [ "frontend" ]
+      "allowedCategories": [ "frontend", "internal" ]
+    },
+    {
+      "name": "react-window-infinite-loader",
+      "allowedCategories": [ "internal" ]
     },
     {
       "name": "readline",
