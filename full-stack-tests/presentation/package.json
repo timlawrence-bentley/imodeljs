@@ -16,8 +16,8 @@
     "docs": "npm run extract",
     "extract": "betools extract --fileExt=ts --extractFrom=./src --recursive --out=../../generated-docs/extract",
     "lint": "eslint -f visualstudio --max-warnings 0 ./src/**/*.ts 1>&2",
-    "test": "cross-env NODE_ENV=development mocha --opts ./mocha.opts ./lib/**/*.js --grep \"#with-services\" --invert",
-    "test:integration": "mocha --opts ./mocha.opts ./lib/**/*.js --grep \"#with-services\"",
+    "test": "cross-env NODE_ENV=development mocha --opts ./mocha.opts \"./lib/**/*.js\" --grep \"#with-services\" --invert",
+    "test:integration": "mocha --opts ./mocha.opts \"./lib/**/*.js\" --grep \"#with-services\"",
     "cover": "npm run test"
   },
   "dependencies": {
@@ -45,6 +45,7 @@
     "@types/cpx": "1.5",
     "@types/deep-equal": "^1",
     "@types/faker": "^4.1.0",
+    "@types/glob": "^5.0.35",
     "@types/mocha": "^5.2.5",
     "@types/node": "10.14.1",
     "@types/rimraf": "^2.0.2",
@@ -78,6 +79,7 @@
     "cache-require-paths": "^0.3.0",
     "cross-env": "^5.1.4",
     "eslint": "^6.8.0",
+    "glob": "^7.1.2",
     "ignore-styles": "^5.0.1",
     "jsdom-global": "3.0.2",
     "ts-node": "^7.0.1",

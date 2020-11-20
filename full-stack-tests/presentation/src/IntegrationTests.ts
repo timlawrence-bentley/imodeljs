@@ -7,6 +7,7 @@ import * as chai from "chai";
 import chaiSubset from "chai-subset";
 import * as cpx from "cpx";
 import * as fs from "fs";
+import * as glob from "glob";
 import * as path from "path";
 import sinonChai from "sinon-chai";
 import { ClientRequestContext, Logger, LogLevel } from "@bentley/bentleyjs-core";
@@ -38,6 +39,8 @@ const copyBentleyBackendAssets = (outputDir: string) => {
     return fs.existsSync(assetsPath);
   }).forEach((src) => {
     cpx.copySync(`${src}/**/*`, outputDir);
+    // eslint-disable-next-line no-console
+    console.log(`Contents of '${path.resolve(src)}':\n${glob.sync(`${path.resolve(src, "**", "*")}`, { nodir: true }).map((fn) => `  ${fn}\n`).join("")}copied to '${path.resolve(outputDir)}'`);
   });
 };
 
@@ -50,6 +53,8 @@ const copyBentleyFrontendAssets = (outputDir: string) => {
     return fs.existsSync(assetsPath);
   }).forEach((src) => {
     cpx.copySync(`${src}/**/*`, outputDir);
+    // eslint-disable-next-line no-console
+    console.log(`Contents of '${path.resolve(src)}':\n${glob.sync(`${path.resolve(src, "**", "*")}`, { nodir: true }).map((fn) => `  ${fn}\n`).join("")}copied to '${path.resolve(outputDir)}'`);
   });
 };
 
@@ -73,19 +78,23 @@ const initializeCommon = async (props: { backendTimeout?: number, useClientServi
   Logger.setLevelDefault(LogLevel.Warning);
   Logger.setLevel(PresentationBackendNativeLoggerCategory.ECObjects, LogLevel.Warning);
   Logger.setLevel(PresentationBackendNativeLoggerCategory.ECPresentation, LogLevel.Info);
+  Logger.setLevel(`${PresentationBackendNativeLoggerCategory.ECPresentation}.Localization`, LogLevel.Trace);
   Logger.setLevel(PresentationBackendLoggerCategory.Package, LogLevel.Info);
   Logger.setLevel(PresentationFrontendLoggerCategory.Package, LogLevel.Info);
   Logger.setLevel(PresentationComponentsLoggerCategory.Package, LogLevel.Info);
 
+  const libDir = path.resolve("lib");
+  console.log(`Backend's lib directory path: ${libDir}`); // eslint-disable-line no-console
+
   const backendInitProps: PresentationBackendProps = {
     requestTimeout: props.backendTimeout ?? 0,
-    rulesetDirectories: ["lib/assets/rulesets"],
-    localeDirectories: ["lib/assets/locales"],
+    rulesetDirectories: [path.join(libDir, "assets", "rulesets")],
+    localeDirectories: [path.join(libDir, "assets", "locales")],
     activeLocale: "en-PSEUDO",
     taskAllocationsMap: {
       [RequestPriority.Max]: 1,
     },
-    cacheConfig: { mode: HierarchyCacheMode.Disk, directory: path.join("lib", "cache") },
+    cacheConfig: { mode: HierarchyCacheMode.Disk, directory: path.join(libDir, "cache") },
   };
   const frontendInitProps: PresentationFrontendProps = {
     activeLocale: "en-PSEUDO",
