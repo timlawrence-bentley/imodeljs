@@ -180,7 +180,7 @@ export function VirtualTable<T extends object>(
   };
 
   return (
-    <div className={"themedTableContainer"}>
+    <div className={"components-themedTableContainer"}>
       <div className={"themedTable"} {...getTableProps()}>
         <div>
           {headerGroups.map((headerGroup, i: number) => (

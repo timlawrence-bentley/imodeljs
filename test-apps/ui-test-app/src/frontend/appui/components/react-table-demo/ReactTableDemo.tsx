@@ -33,11 +33,13 @@ export function ReactTableDemo() {
         columns: [
           {
             Header: "Column 1",
-            accessor: "col1", // accessor is the "key" in the data
+            accessor: (originalRow: any) => originalRow.col1, // accessor is the "key" in the data
+            id: "col1",
           },
           {
             Header: "Column 2",
-            accessor: "col2",
+            accessor: (originalRow: any) => originalRow.col2,
+            id: "col2",
           },
         ],
       },
