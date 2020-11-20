@@ -37,8 +37,8 @@ class BentleyMochaReporter extends Spec {
 
     // Force rush test to fail CI builds if describe.only or it.only is used.
     // These should only be used for debugging and must not be committed, otherwise we may be accidentally skipping lots of tests.
-    if (isCI)
-      options.forbidOnly = true;
+    /*if (isCI)
+      options.forbidOnly = true;*/
   }
 
   public epilogue(...args: any[]) {
