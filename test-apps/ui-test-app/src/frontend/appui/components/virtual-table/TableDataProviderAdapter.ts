@@ -41,16 +41,13 @@ export class TableDataProviderAdapter {
   public async adaptColumns(): Promise<void> {
     this._tableColumns.length = 0;
     const rowColumns = await this._dataProvider.getColumns();
-
-    const adapter = this; // eslint-disable-line @typescript-eslint/no-this-alias
-
-    rowColumns.forEach((rowColumn, colIndex) => {
+    for (const rowColumn of rowColumns) {
       this._tableColumns.push({
         Header: rowColumn.label,
-        accessor: (originalRow: any) => adapter._cellAccessor(originalRow as RowItem, colIndex),
+        accessor: (originalRow: any) => this._cellAccessor(originalRow as RowItem, rowColumn.key),
         id: rowColumn.key,
       });
-    });
+    }
   }
 
   public async adapt(): Promise<void> {
@@ -58,9 +55,11 @@ export class TableDataProviderAdapter {
     await this.adaptColumns();
   }
 
-  private _cellAccessor = (rowItem: RowItem, colIndex: number): string => {
-    const cellItem = rowItem.cells[colIndex];
-    return this.getCellDisplayValue(cellItem);
+  private _cellAccessor = (rowItem: RowItem, colKey: string): string => {
+    const foundItem = rowItem.cells.find((cellItem) => cellItem.key === colKey);
+    if (foundItem)
+      return this.getCellDisplayValue(foundItem);
+    return "";
   };
 
   private getCellDisplayValue(cellItem: CellItem): string {
