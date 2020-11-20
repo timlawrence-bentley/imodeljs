@@ -1,0 +1,96 @@
+/*---------------------------------------------------------------------------------------------
+* Copyright (c) Bentley Systems, Incorporated. All rights reserved.
+* See LICENSE.md in the project root for license terms and full copyright notice.
+*--------------------------------------------------------------------------------------------*/
+import {
+  Column,
+} from "react-table";
+import {
+  CellItem,
+  RowItem,
+  TableDataProvider,
+  TypeConverterManager,
+} from "@bentley/ui-components";
+import { PropertyValueFormat } from "@bentley/ui-abstract";
+
+/**
+ * Adapts [[TableDataProvider]] data for use by react-table
+ */
+export class TableDataProviderAdapter {
+  private _dataProvider: TableDataProvider;
+  private _tableData: Array<RowItem> = [];
+  private _tableColumns: Array<Column<RowItem>> = [];
+
+  constructor(dataProvider: TableDataProvider) {
+    this._dataProvider = dataProvider;
+  }
+
+  public async getRowsCount(): Promise<number> {
+    return this._dataProvider.getRowsCount();
+  }
+
+  public async adaptRows(): Promise<void> {
+    this._tableData.length = 0;
+    const rowCount = await this._dataProvider.getRowsCount();
+    for (let index = 0; index < rowCount; index++) {
+      const rowItem = await this._dataProvider.getRow(index);
+      this._tableData.push(rowItem);
+    }
+  }
+
+  public async adaptColumns(): Promise<void> {
+    this._tableColumns.length = 0;
+    const rowColumns = await this._dataProvider.getColumns();
+
+    const adapter = this; // eslint-disable-line @typescript-eslint/no-this-alias
+
+    rowColumns.forEach((rowColumn, colIndex) => {
+      this._tableColumns.push({
+        Header: rowColumn.label,
+        accessor: (originalRow: any) => adapter._cellAccessor(originalRow as RowItem, colIndex),
+        id: rowColumn.key,
+      });
+    });
+  }
+
+  public async adapt(): Promise<void> {
+    await this.adaptRows();
+    await this.adaptColumns();
+  }
+
+  private _cellAccessor = (rowItem: RowItem, colIndex: number): string => {
+    const cellItem = rowItem.cells[colIndex];
+    return this.getCellDisplayValue(cellItem);
+  };
+
+  private getCellDisplayValue(cellItem: CellItem): string {
+    if (!cellItem.record || cellItem.record.value.valueFormat !== PropertyValueFormat.Primitive)
+      return "";
+
+    const value = cellItem.record.value.value;
+
+    if (value === undefined)
+      return "";
+
+    const displayValue = TypeConverterManager
+      .getConverter(cellItem.record.property.typename, cellItem.record.property.converter?.name)
+      .convertPropertyToString(cellItem.record.property, value);
+
+    if (displayValue) {
+      if (typeof displayValue === "string")
+        return displayValue;
+      else
+        return "* Promise unsupported"; // NEEDSWORK
+    }
+
+    return "";
+  }
+
+  public get reactTableData(): Array<RowItem> {
+    return this._tableData;
+  }
+
+  public get reactTableColumns(): Array<Column<RowItem>> {
+    return this._tableColumns;
+  }
+}

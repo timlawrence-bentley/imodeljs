@@ -12,7 +12,7 @@ import {
 import { BodyText, Toggle } from "@bentley/ui-core";
 import { ConfigurableCreateInfo, ConfigurableUiManager, ContentControl } from "@bentley/ui-framework";
 import { ReactTableDemo } from "../components/react-table-demo/ReactTableDemo";
-import { TableData } from "./TableData";
+import { TableExampleData } from "./TableExampleData";
 
 class TableExampleContentControl extends ContentControl {
   constructor(info: ConfigurableCreateInfo, options: any) {
@@ -35,7 +35,7 @@ interface TableExampleState {
 }
 
 class TableExampleContent extends React.Component<{}, TableExampleState>  {
-  private _tableData = new TableData();
+  private _tableData = new TableExampleData();
   public readonly state: Readonly<TableExampleState>;
 
   constructor(props: any) {

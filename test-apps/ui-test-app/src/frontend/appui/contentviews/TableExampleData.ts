@@ -172,7 +172,7 @@ const createLoremPropertyRecord = (column: ColumnDescription) => {
 /**
  * Data for Table demos
  */
-export class TableData {
+export class TableExampleData {
   private _dataProvider?: TableDataProvider;
 
   private _columns: ColumnDescription[] = [
