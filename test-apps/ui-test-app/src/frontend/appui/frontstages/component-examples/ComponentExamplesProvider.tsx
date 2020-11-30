@@ -334,6 +334,19 @@ export class ComponentExamplesProvider {
     };
   }
 
+  private static get iconSamples(): ComponentExampleCategory {
+    return {
+      title: "Icon",
+      examples: [
+        createComponentExample("Placeholder Icon", "", <Icon iconSpec="icon-placeholder" />),
+        createComponentExample("Larger Web Icon", "Icon with style prop", <Icon iconSpec="icon-placeholder" style={{ fontSize: "32px" }} />),
+        createComponentExample("Larger Web Icon", "Icon with className prop", <Icon iconSpec="icon-placeholder" className="component-larger-icon" />),
+        createComponentExample("Larger SVG Icon", "Icon with style prop", <Icon iconSpec={IconSpecUtilities.createSvgIconSpec(moreVerticalSvg)} style={{ width: "32px", height: "32px" }} />),
+        createComponentExample("Larger SVG Icon", "Icon with className prop", <Icon iconSpec={IconSpecUtilities.createSvgIconSpec(moreVerticalSvg)} className="component-larger-icon" />),
+      ],
+    };
+  }
+
   private static get inputsSamples(): ComponentExampleCategory {
     return {
       title: "Inputs",
@@ -806,6 +819,7 @@ export class ComponentExamplesProvider {
       ComponentExamplesProvider.contextMenuSample,
       ComponentExamplesProvider.datePickerSample,
       ComponentExamplesProvider.expandableListBlockSamples,
+      ComponentExamplesProvider.iconSamples,
       ComponentExamplesProvider.inputsSamples,
       ComponentExamplesProvider.listboxSamples,
       ComponentExamplesProvider.loadingSamples,
