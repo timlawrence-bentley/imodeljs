@@ -67,6 +67,13 @@ export interface RenderTargetDebugControl {
   freezeRealityTiles: boolean;
 }
 
+/** @internal */
+export enum UpdateViewRectResult {
+  NoResize,
+  YesLazyResize,
+  YesResize,
+}
+
 /** A RenderTarget connects a [[Viewport]] to a WebGLRenderingContext to enable the viewport's contents to be displayed on the screen.
  * Application code rarely interacts directly with a RenderTarget - instead, it interacts with a Viewport which forwards requests to the implementation
  * of the RenderTarget.
@@ -126,7 +133,7 @@ export abstract class RenderTarget implements IDisposable, RenderMemory.Consumer
   public onBeforeRender(_viewport: Viewport, _setSceneNeedRedraw: (redraw: boolean) => void): void { }
   public abstract setViewRect(_rect: ViewRect, _temporary: boolean): void;
   public onResized(): void { }
-  public abstract updateViewRect(): boolean; // force a RenderTarget viewRect to resize if necessary since last draw
+  public abstract updateViewRect(_canLazyResize: boolean): UpdateViewRectResult; // force a RenderTarget viewRect to resize if necessary since last draw
   /** `rect` is specified in *CSS* pixels. */
   public abstract readPixels(rect: ViewRect, selector: Pixel.Selector, receiver: Pixel.Receiver, excludeNonLocatable: boolean): void;
   /** `_rect` is specified in *CSS* pixels. */

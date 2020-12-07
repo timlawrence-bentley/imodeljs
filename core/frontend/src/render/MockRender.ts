@@ -21,7 +21,7 @@ import { GraphicList, RenderGraphic } from "./RenderGraphic";
 import { RenderMemory } from "./RenderMemory";
 import { RenderPlan } from "./RenderPlan";
 import { RenderSystem } from "./RenderSystem";
-import { RenderTarget } from "./RenderTarget";
+import { RenderTarget, UpdateViewRectResult } from "./RenderTarget";
 import { Scene } from "./Scene";
 
 /** Contains extensible mock implementations of the various components of a RenderSystem, intended for use in tests.
@@ -49,7 +49,7 @@ export namespace MockRender {
     public changeDecorations(_decs: Decorations) { }
     public changeRenderPlan(_plan: RenderPlan) { }
     public drawFrame(_sceneTime?: number) { }
-    public updateViewRect() { return false; }
+    public updateViewRect(_canLazyResize: boolean) { return UpdateViewRectResult.NoResize; }
     public readPixels(_rect: ViewRect, _selector: Pixel.Selector, receiver: Pixel.Receiver, _excludeNonLocatable: boolean) { receiver(undefined); }
   }
 

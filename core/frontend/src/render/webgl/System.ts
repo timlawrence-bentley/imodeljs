@@ -297,6 +297,12 @@ function createPrimitive(createGeom: (viOrigin: Point3d | undefined) => CachedGe
 
 /** @internal */
 export class System extends RenderSystem implements RenderSystemDebugControl, RenderMemory.Consumer, WebGLDisposable {
+  public numTextures = 0;
+  public numFramebuffers = 0;
+  public numRenderbuffers = 0;
+  public numBuffers = 0;
+  public bufferMap = new Map<WebGLBuffer, string>();
+  public curBufferId = 0;
   public readonly canvas: HTMLCanvasElement;
   public readonly currentRenderState = new RenderState();
   public readonly context: WebGLRenderingContext | WebGL2RenderingContext;
@@ -613,6 +619,66 @@ export class System extends RenderSystem implements RenderSystemDebugControl, Re
     this._removeEventListener = IModelConnection.onClose.addListener((imodel) => this.removeIModelMap(imodel));
 
     canvas.addEventListener("webglcontextlost", async () => this.handleContextLoss(), false);
+
+    // const createTexture = context.createTexture;
+    // context.createTexture = () => {
+    //   console.log("createTexture: " + (++this.numTextures).toString());
+    //   return createTexture.apply(context);
+    // };
+
+    // const deleteTexture = context.deleteTexture;
+    // context.deleteTexture = (tx: WebGLTexture | null) => {
+    //   console.log("deleteTexture: " + (--this.numTextures).toString());
+    //   deleteTexture.apply(context, [tx]);
+    //   context.finish();
+    // };
+
+    // const createFramebuffer = context.createFramebuffer;
+    // context.createFramebuffer = () => {
+    //   console.log("createFramebuffer: " + (++this.numFramebuffers).toString());
+    //   return createFramebuffer.apply(context);
+    // };
+
+    // const deleteFramebuffer = context.deleteFramebuffer;
+    // context.deleteFramebuffer = (fb: WebGLFramebuffer | null) => {
+    //   console.log("deleteFramebuffer: " + (--this.numFramebuffers).toString());
+    //   deleteFramebuffer.apply(context, [fb]);
+    //   context.finish();
+    // };
+
+    // const createRenderbuffer = context.createRenderbuffer;
+    // context.createRenderbuffer = () => {
+    //   console.log("createRenderbuffer: " + (++this.numRenderbuffers).toString());
+    //   return createRenderbuffer.apply(context);
+    // };
+
+    // const deleteRenderbuffer = context.deleteRenderbuffer;
+    // context.deleteRenderbuffer = (rb: WebGLRenderbuffer | null) => {
+    //   console.log("deleteRenderbuffer: " + (--this.numRenderbuffers).toString());
+    //   deleteRenderbuffer.apply(context, [rb]);
+    //   context.finish();
+    // };
+
+    // const createBuffer = context.createBuffer;
+    // context.createBuffer = () => {
+    //   console.log("createBuffer: count=" + (++this.numBuffers).toString() + ", id=" + this.curBufferId.toString());
+    //   // console.trace();
+    //   const bf = createBuffer.apply(context);
+    //   if (null !== bf)
+    //     this.bufferMap.set(bf, (this.curBufferId++).toString());
+    //   console.log("  buffers=" + Array.from(this.bufferMap.values()).toString());
+    //   return bf;
+    // };
+
+    // const deleteBuffer = context.deleteBuffer;
+    // context.deleteBuffer = (bf: WebGLBuffer | null) => {
+    //   console.log("deleteBuffer: count=" + (--this.numBuffers).toString() + ", id=" + this.bufferMap.get(bf!));
+    //   if (null !== bf)
+    //     this.bufferMap.delete(bf);
+    //   console.log("  buffers=" + Array.from(this.bufferMap.values()).toString());
+    //   deleteBuffer.apply(context, [bf]);
+    //   context.finish();
+    // };
 
     TechniqueFlags.requireEdgeTest = capabilities.requiresSurfaceDiscard;
   }

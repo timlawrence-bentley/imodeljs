@@ -5,7 +5,7 @@
 import { IModelApp, IModelAppOptions } from "./IModelApp";
 import { AnimationBranchStates } from "./render/GraphicBranch";
 import { RenderSystem } from "./render/RenderSystem";
-import { RenderTarget } from "./render/RenderTarget";
+import { RenderTarget, UpdateViewRectResult } from "./render/RenderTarget";
 import { ViewRect } from "./ViewRect";
 
 /**
@@ -34,7 +34,7 @@ export class NullTarget extends RenderTarget {
   public setViewRect(): void { }
   public onResized(): void { }
   public dispose(): void { }
-  public updateViewRect(): boolean { return false; }
+  public updateViewRect(_canLazyResize: boolean): UpdateViewRectResult { return UpdateViewRectResult.NoResize; }
   public readPixels(): void { }
   public readImage() { return undefined; }
 

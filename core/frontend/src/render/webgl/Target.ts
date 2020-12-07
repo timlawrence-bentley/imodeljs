@@ -24,7 +24,7 @@ import { RenderMemory } from "../RenderMemory";
 import { createEmptyRenderPlan, RenderPlan } from "../RenderPlan";
 import { PlanarClassifierMap, RenderPlanarClassifier } from "../RenderPlanarClassifier";
 import { RenderTextureDrape, TextureDrapeMap } from "../RenderSystem";
-import { PrimitiveVisibility, RenderTarget, RenderTargetDebugControl } from "../RenderTarget";
+import { PrimitiveVisibility, RenderTarget, RenderTargetDebugControl, UpdateViewRectResult } from "../RenderTarget";
 import { Scene } from "../Scene";
 import { BranchState } from "./BranchState";
 import { CachedGeometry, SingleTexturedViewportQuadGeometry } from "./CachedGeometry";
@@ -262,9 +262,13 @@ export abstract class Target extends RenderTarget implements RenderTargetDebugCo
       && this._isDisposed;
   }
 
+  private _numAllocFbo = 0;
+
   protected allocateFbo(): FrameBuffer | undefined {
     if (this._fbo)
       return this._fbo;
+
+    // console.log("allocateFbo: " + (++this._numAllocFbo).toString());
 
     const rect = this.viewRect;
     const color = TextureHandle.createForAttachment(rect.width, rect.height, GL.Texture.Format.Rgba, GL.Texture.DataType.UnsignedByte);
@@ -283,6 +287,8 @@ export abstract class Target extends RenderTarget implements RenderTargetDebugCo
   protected disposeFbo(): void {
     if (!this._fbo)
       return;
+
+    // console.log("allocateFbo: " + (--this._numAllocFbo).toString());
 
     const tx = this._fbo.getColor(0);
     this._fbo = dispose(this._fbo);
@@ -1062,6 +1068,8 @@ class CanvasState {
   public readonly canvas: HTMLCanvasElement;
   private _width = 0;
   private _height = 0;
+  private _lazyWidth = 0;
+  private _lazyHeight = 0;
   public needsClear = false;
   private _isWebGLCanvas: boolean;
 
@@ -1071,15 +1079,32 @@ class CanvasState {
   }
 
   // Returns true if the rect actually changed.
-  public updateDimensions(pixelRatio: number): boolean {
+  public updateDimensions(pixelRatio: number, canLazyResize: boolean): UpdateViewRectResult {
+    console.log("updateDimensions, _isWebGlCanvas=" + this._isWebGLCanvas + ", canLazyResize=" + canLazyResize);
+
     const w = Math.floor(this.canvas.clientWidth * pixelRatio);
     const h = Math.floor(this.canvas.clientHeight * pixelRatio);
-    if (w === this._width && h === this._height)
-      return false;
+    if (canLazyResize && (w < this._width || h < this._height)) {
+      console.log("  YesLazyResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height);
+      this._lazyWidth = w;
+      this._lazyHeight = h;
+      return UpdateViewRectResult.YesLazyResize;
+    } else if (w === this._width && h === this._height) {
+      if (canLazyResize && (w !== this._lazyWidth || h !== this._lazyHeight)) {
+        console.log("  YesLazyResize (NoResize): w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height);
+        this._lazyWidth = w;
+        this._lazyHeight = h;
+        return UpdateViewRectResult.YesLazyResize;
+      }
+      console.log("  NoResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height);
+      return UpdateViewRectResult.NoResize;
+    }
+
+    console.log("  YesResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height);
 
     // Must ensure internal bitmap grid dimensions of on-screen canvas match its own on-screen appearance.
-    this.canvas.width = this._width = w;
-    this.canvas.height = this._height = h;
+    this.canvas.width = this._width = this._lazyWidth = w;
+    this.canvas.height = this._height = this._lazyHeight = h;
 
     if (!this._isWebGLCanvas) {
       const ctx = this.canvas.getContext("2d")!;
@@ -1087,7 +1112,7 @@ class CanvasState {
       ctx.save();
     }
 
-    return true;
+    return UpdateViewRectResult.YesResize;
   }
 
   public get width() { return this._width; }
@@ -1161,6 +1186,7 @@ export class OnScreenTarget extends Target {
 
     const tx = fbo.getColor(0);
     assert(undefined !== tx.getHandle());
+    this._blitGeom = dispose(this._blitGeom);
     this._blitGeom = SingleTexturedViewportQuadGeometry.createGeometry(tx.getHandle()!, TechniqueId.CopyColorNoAlpha);
     if (undefined === this._blitGeom)
       this.disposeFbo();
@@ -1168,10 +1194,10 @@ export class OnScreenTarget extends Target {
     return undefined !== this._blitGeom;
   }
 
-  public updateViewRect(): boolean {
+  public updateViewRect(_canLazyResize = false): UpdateViewRectResult {
     const pixelRatio = this.devicePixelRatio;
-    const changed2d = this._2dCanvas.updateDimensions(pixelRatio);
-    const changedWebGL = this._webglCanvas.updateDimensions(pixelRatio);
+    const changed2d = this._2dCanvas.updateDimensions(pixelRatio, false);
+    const changedWebGL = this._webglCanvas.updateDimensions(pixelRatio, true);
     this.renderRect.init(0, 0, this._curCanvas.width, this._curCanvas.height);
     return this._usingWebGLCanvas ? changedWebGL : changed2d;
   }
@@ -1296,7 +1322,7 @@ export class OffScreenTarget extends Target {
     assert(false); // offscreen viewport's dimensions are set once, in constructor.
   }
 
-  public updateViewRect(): boolean { return false; } // offscreen target does not dynamically resize the view rect
+  public updateViewRect(): UpdateViewRectResult { return UpdateViewRectResult.NoResize; } // offscreen target does not dynamically resize the view rect
 
   public setViewRect(rect: ViewRect, temporary: boolean): void {
     if (this.renderRect.equals(rect))

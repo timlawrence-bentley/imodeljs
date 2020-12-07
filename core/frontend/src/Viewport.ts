@@ -35,7 +35,7 @@ import { Pixel } from "./render/Pixel";
 import { GraphicList, RenderGraphicOwner } from "./render/RenderGraphic";
 import { RenderMemory } from "./render/RenderMemory";
 import { createRenderPlanFromViewport } from "./render/RenderPlan";
-import { RenderTarget } from "./render/RenderTarget";
+import { RenderTarget, UpdateViewRectResult } from "./render/RenderTarget";
 import { SheetViewState } from "./Sheet";
 import { StandardView, StandardViewId } from "./StandardView";
 import { SubCategoriesCache } from "./SubCategoriesCache";
@@ -2660,7 +2660,9 @@ export abstract class Viewport implements IDisposable {
   }
 
   /** @internal */
-  public renderFrame(): void {
+  public renderFrame(triggeredByResize = false): void {
+    // console.log("renderFrame, triggeredByResize = " + triggeredByResize);
+
     const changeFlags = this._changeFlags;
     if (changeFlags.hasChanges)
       this._changeFlags = new ChangeFlags(ChangeFlag.None);
@@ -2678,7 +2680,7 @@ export abstract class Viewport implements IDisposable {
     let isRedrawNeeded = this._redrawPending || this._doContinuousRendering;
     this._redrawPending = false;
 
-    if (target.updateViewRect()) {
+    if (UpdateViewRectResult.NoResize !== target.updateViewRect(triggeredByResize)) {
       target.onResized();
       this.invalidateController();
     }
@@ -3161,7 +3163,7 @@ export class ScreenViewport extends Viewport {
     this.addChildDiv(this.parentDiv, div, 0);
 
     this.addChildDiv(this.vpDiv, canvas, 10);
-    this.target.updateViewRect();
+    this.target.updateViewRect(false);
 
     this.decorationDiv = this.addNewDiv("overlay-decorators", true, 30);
     this.toolTipDiv = this.addNewDiv("overlay-tooltip", true, 40);
@@ -3581,7 +3583,7 @@ export class ScreenViewport extends Viewport {
       this.addChildDiv(this.vpDiv, webglCanvas, 5);
     }
 
-    this.target.updateViewRect();
+    this.target.updateViewRect(false);
     this.invalidateRenderPlan();
   }
 }
