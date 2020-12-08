@@ -1068,8 +1068,8 @@ class CanvasState {
   public readonly canvas: HTMLCanvasElement;
   private _width = 0;
   private _height = 0;
-  private _lazyWidth = 0;
-  private _lazyHeight = 0;
+  private _lazyWidth = -1;
+  private _lazyHeight = -1;
   public needsClear = false;
   private _isWebGLCanvas: boolean;
 
@@ -1080,27 +1080,38 @@ class CanvasState {
 
   // Returns true if the rect actually changed.
   public updateDimensions(pixelRatio: number, canLazyResize: boolean): UpdateViewRectResult {
-    console.log("updateDimensions, _isWebGlCanvas=" + this._isWebGLCanvas + ", canLazyResize=" + canLazyResize);
+    // console.log("updateDimensions, _isWebGlCanvas=" + this._isWebGLCanvas + ", canLazyResize=" + canLazyResize);
 
     const w = Math.floor(this.canvas.clientWidth * pixelRatio);
     const h = Math.floor(this.canvas.clientHeight * pixelRatio);
-    if (canLazyResize && (w < this._width || h < this._height)) {
-      console.log("  YesLazyResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height);
-      this._lazyWidth = w;
-      this._lazyHeight = h;
-      return UpdateViewRectResult.YesLazyResize;
-    } else if (w === this._width && h === this._height) {
-      if (canLazyResize && (w !== this._lazyWidth || h !== this._lazyHeight)) {
-        console.log("  YesLazyResize (NoResize): w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height);
+
+    if (canLazyResize) {
+      if (w === this._lazyWidth && h === this._lazyHeight) {
+        console.log("  NoResize (Lazy): w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", lazyWidth=" + this._lazyWidth + ", lazyHeight=" + this._lazyHeight);
+        return UpdateViewRectResult.NoResize;
+      }
+      if (w < this._width || h < this._height) {
+        console.log("  YesLazyResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", lazyWidth=" + this._lazyWidth + ", lazyHeight=" + this._lazyHeight);
         this._lazyWidth = w;
         this._lazyHeight = h;
         return UpdateViewRectResult.YesLazyResize;
       }
-      console.log("  NoResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height);
+      if (w === this._width && h === this._height && (w !== this._lazyWidth || h !== this._lazyHeight)) {
+        console.log("  YesLazyResize (NoResize): w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", lazyWidth=" + this._lazyWidth + ", lazyHeight=" + this._lazyHeight);
+        this._lazyWidth = w;
+        this._lazyHeight = h;
+        return UpdateViewRectResult.YesLazyResize;
+      }
+    }
+
+    if (w === this._width && h === this._height) {
+      if (canLazyResize)
+        console.log("  NoResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", lazyWidth=" + this._lazyWidth + ", lazyHeight=" + this._lazyHeight);
       return UpdateViewRectResult.NoResize;
     }
 
-    console.log("  YesResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height);
+    if (canLazyResize)
+      console.log("  YesResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", lazyWidth=" + this._lazyWidth + ", lazyHeight=" + this._lazyHeight);
 
     // Must ensure internal bitmap grid dimensions of on-screen canvas match its own on-screen appearance.
     this.canvas.width = this._width = this._lazyWidth = w;

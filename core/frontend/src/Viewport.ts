@@ -2662,6 +2662,7 @@ export abstract class Viewport implements IDisposable {
   /** @internal */
   public renderFrame(triggeredByResize = false): void {
     // console.log("renderFrame, triggeredByResize = " + triggeredByResize);
+    // console.trace();
 
     const changeFlags = this._changeFlags;
     if (changeFlags.hasChanges)
