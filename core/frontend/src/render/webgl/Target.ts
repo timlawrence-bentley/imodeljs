@@ -1068,8 +1068,8 @@ class CanvasState {
   public readonly canvas: HTMLCanvasElement;
   private _width = 0;
   private _height = 0;
-  private _lazyWidth = -1;
-  private _lazyHeight = -1;
+  private _softWidth = -1;
+  private _softHeight = -1;
   public needsClear = false;
   private _isWebGLCanvas: boolean;
 
@@ -1082,40 +1082,45 @@ class CanvasState {
   public updateDimensions(pixelRatio: number, canLazyResize: boolean): UpdateViewRectResult {
     // console.log("updateDimensions, _isWebGlCanvas=" + this._isWebGLCanvas + ", canLazyResize=" + canLazyResize);
 
-    const w = Math.floor(this.canvas.clientWidth * pixelRatio);
-    const h = Math.floor(this.canvas.clientHeight * pixelRatio);
+    let w = Math.floor(this.canvas.clientWidth * pixelRatio);
+    let h = Math.floor(this.canvas.clientHeight * pixelRatio);
 
     if (canLazyResize) {
-      if (w === this._lazyWidth && h === this._lazyHeight) {
-        console.log("  NoResize (Lazy): w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", lazyWidth=" + this._lazyWidth + ", lazyHeight=" + this._lazyHeight);
-        return UpdateViewRectResult.NoResize;
+      if (w === this._softWidth && h === this._softHeight) {
+        console.log("  NoResizeSoft: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", _softWidth=" + this._softWidth + ", _softHeight=" + this._softHeight);
+        return UpdateViewRectResult.NoResizeSoft;
       }
-      if (w < this._width || h < this._height) {
-        console.log("  YesLazyResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", lazyWidth=" + this._lazyWidth + ", lazyHeight=" + this._lazyHeight);
-        this._lazyWidth = w;
-        this._lazyHeight = h;
-        return UpdateViewRectResult.YesLazyResize;
+      if (w < this._width && h < this._height) {
+        console.log("  YesResizeSoft: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", _softWidth=" + this._softWidth + ", _softHeight=" + this._softHeight);
+        this._softWidth = w;
+        this._softHeight = h;
+        return UpdateViewRectResult.YesResizeSoft;
       }
-      if (w === this._width && h === this._height && (w !== this._lazyWidth || h !== this._lazyHeight)) {
-        console.log("  YesLazyResize (NoResize): w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", lazyWidth=" + this._lazyWidth + ", lazyHeight=" + this._lazyHeight);
-        this._lazyWidth = w;
-        this._lazyHeight = h;
-        return UpdateViewRectResult.YesLazyResize;
+      if (w === this._width && h === this._height && (w !== this._softWidth || h !== this._softHeight)) {
+        console.log("  YesResizeSoft (NoResize): w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", _softWidth=" + this._softWidth + ", _softHeight=" + this._softHeight);
+        this._softWidth = w;
+        this._softHeight = h;
+        return UpdateViewRectResult.YesResizeSoft;
       }
+    }
+
+    if (canLazyResize) {
+      const maxDim = w > h ? w : h;
+      w = h = maxDim;
     }
 
     if (w === this._width && h === this._height) {
-      if (canLazyResize)
-        console.log("  NoResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", lazyWidth=" + this._lazyWidth + ", lazyHeight=" + this._lazyHeight);
+      if (this._isWebGLCanvas)
+        console.log("  NoResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", _softWidth=" + this._softWidth + ", _softHeight=" + this._softHeight);
       return UpdateViewRectResult.NoResize;
     }
 
-    if (canLazyResize)
-      console.log("  YesResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", lazyWidth=" + this._lazyWidth + ", lazyHeight=" + this._lazyHeight);
+    if (this._isWebGLCanvas)
+      console.log("  YesResize: w=" + w + ", h=" + h + ", _width=" + this._width + ", _height=" + this._height + ", _softWidth=" + this._softWidth + ", _softHeight=" + this._softHeight);
 
     // Must ensure internal bitmap grid dimensions of on-screen canvas match its own on-screen appearance.
-    this.canvas.width = this._width = this._lazyWidth = w;
-    this.canvas.height = this._height = this._lazyHeight = h;
+    this.canvas.width = this._width = this._softWidth = w;
+    this.canvas.height = this._height = this._softHeight = h;
 
     if (!this._isWebGLCanvas) {
       const ctx = this.canvas.getContext("2d")!;
@@ -1205,10 +1210,10 @@ export class OnScreenTarget extends Target {
     return undefined !== this._blitGeom;
   }
 
-  public updateViewRect(_canLazyResize = false): UpdateViewRectResult {
+  public updateViewRect(canLazyResize = false): UpdateViewRectResult {
     const pixelRatio = this.devicePixelRatio;
     const changed2d = this._2dCanvas.updateDimensions(pixelRatio, false);
-    const changedWebGL = this._webglCanvas.updateDimensions(pixelRatio, true);
+    const changedWebGL = this._webglCanvas.updateDimensions(pixelRatio, canLazyResize);
     this.renderRect.init(0, 0, this._curCanvas.width, this._curCanvas.height);
     return this._usingWebGLCanvas ? changedWebGL : changed2d;
   }

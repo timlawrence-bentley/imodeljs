@@ -894,6 +894,8 @@ export abstract class Viewport implements IDisposable {
   private _timePointValid = false;
   /** @internal */
   private readonly _decorationCache: Map<ViewportDecorator, CachedDecoration[]> = new Map<ViewportDecorator, CachedDecoration[]>();
+  /** @internal */
+  private _nextHardResizeTime?: BeTimePoint;
 
   /** Mark the current set of decorations invalid, so that they will be recreated on the next render frame.
    * This can be useful, for example, if an external event causes one or more current decorations to become invalid and you wish to force
@@ -2660,7 +2662,7 @@ export abstract class Viewport implements IDisposable {
   }
 
   /** @internal */
-  public renderFrame(triggeredByResize = false): void {
+  public renderFrame(_triggeredByResize = false): void {
     // console.log("renderFrame, triggeredByResize = " + triggeredByResize);
     // console.trace();
 
@@ -2681,9 +2683,22 @@ export abstract class Viewport implements IDisposable {
     let isRedrawNeeded = this._redrawPending || this._doContinuousRendering;
     this._redrawPending = false;
 
-    if (UpdateViewRectResult.NoResize !== target.updateViewRect(triggeredByResize)) {
+    const now = BeTimePoint.now();
+    const forceHardResize = undefined !== this._nextHardResizeTime && this._nextHardResizeTime.before(now);
+    if (forceHardResize) {
+      this._nextHardResizeTime = undefined;
+      console.log("forcing hard resize");
+    }
+
+    const resizeResult = target.updateViewRect(!forceHardResize);
+    if (UpdateViewRectResult.YesResize === resizeResult) { // || UpdateViewRectResult.YesResizeSoft === resizeResult) {
       target.onResized();
       this.invalidateController();
+    } else if (UpdateViewRectResult.YesResizeSoft === resizeResult) {
+      this.invalidateController();
+    } else if (UpdateViewRectResult.NoResizeSoft === resizeResult && undefined === this._nextHardResizeTime) {
+      const softResizeExpirationTime = BeDuration.fromSeconds(10);
+      this._nextHardResizeTime = now.plus(softResizeExpirationTime);
     }
 
     if (this._selectionSetDirty) {

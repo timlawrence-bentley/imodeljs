@@ -70,8 +70,9 @@ export interface RenderTargetDebugControl {
 /** @internal */
 export enum UpdateViewRectResult {
   NoResize,
-  YesLazyResize,
+  NoResizeSoft,
   YesResize,
+  YesResizeSoft,
 }
 
 /** A RenderTarget connects a [[Viewport]] to a WebGLRenderingContext to enable the viewport's contents to be displayed on the screen.
