@@ -17,6 +17,7 @@
     "lint": "eslint -f visualstudio ./src/**/*.ts 1>&2",
     "test": "",
     "test:integration": "betools test",
+    "test:integration:pr": "betools test",
     "docs": "",
     "cover": ""
   },

@@ -20,6 +20,7 @@
     "lint": "eslint -f visualstudio ./src/**/*.ts 1>&2",
     "test": "",
     "test:integration": "npm run webpackTests && npm run test:integration:chrome",
+    "test:integration:pr": "npm run webpackTests && npm run test:integration:chrome",
     "test:integration:chrome": "certa -r chrome",
     "test:integration:electron": "certa -r electron",
     "test:integration:node": "certa -r node",

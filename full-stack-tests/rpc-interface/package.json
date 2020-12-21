@@ -16,6 +16,7 @@
     "start:backend": "node ./lib/test/backend.js",
     "test": "",
     "test:integration": "npm-run-all -r -p start:backend test:integration:chrome",
+    "test:integration:pr": "npm-run-all -r -p start:backend test:integration:chrome",
     "test:integration:chrome": "certa -r chrome",
     "webpack:frontend": "webpack --config webpack.config.js 1>&2"
   },

@@ -21,6 +21,7 @@
     "lint": "eslint -f visualstudio ./src/**/*.ts 1>&2",
     "test": "",
     "test:integration": "npm run webpackTests && npm run test:integration:chrome",
+    "test:integration:pr": "npm run webpackTests && npm run test:integration:chrome",
     "test:integration:chrome": "certa -r chrome --grep \"#integration\"",
     "test:integration:electron": "certa -r electron --grep \"#integration\"",
     "webpackTests": "webpack --config ./src/test/utils/webpack.config.js 1>&2"

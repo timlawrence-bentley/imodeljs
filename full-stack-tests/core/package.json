@@ -17,6 +17,7 @@
     "test:chrome": "certa -r chrome --grep \"#integration\" --invert",
     "test:electron": "certa -r electron --grep \"#integration\" --invert",
     "test:integration": "npm run test:integration:chrome && npm run test:integration:electron",
+    "test:integration:pr": "npm run test:integration:chrome && npm run test:integration:electron",
     "test:integration:chrome": "certa -r chrome --grep \"#integration\"",
     "test:integration:electron": "certa -r electron --grep \"#integration\"",
     "webpack:frontend": "webpack --config webpack.config.js 1>&2"
