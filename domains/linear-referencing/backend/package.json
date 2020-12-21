@@ -10,6 +10,7 @@
   "scripts": {
     "compile": "npm run build",
     "build": "tsc 1>&2 && npm run copy:test-assets",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "clean": "rimraf lib .rush/temp/package-deps*.json",
     "copy:test-assets": "cpx \"./src/test/assets/**/*\" ./lib/test/assets",
     "cover": "nyc npm test",

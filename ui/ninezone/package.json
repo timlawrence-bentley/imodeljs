@@ -14,6 +14,7 @@
     "compile": "npm run build",
     "copy:assets": "cpx \"./src/**/*.*css\" \"./lib\"",
     "build": "npm run copy:assets && tsc 1>&2",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "clean": "rimraf lib .rush/temp/package-deps*.json",
     "cover": "nyc npm test",
     "docs": "npm run docs:typedoc",

@@ -14,6 +14,7 @@
   "scripts": {
     "compile": "npm run build:backend & tsc",
     "build": "npm run build:backend & npm run build:frontend",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "build:backend": "tsc -p tsconfig.backend.json",
     "build:frontend": "cross-env EXTEND_ESLINT=true react-scripts build",
     "clean": "rimraf build lib .rush/temp/package-deps*.json",

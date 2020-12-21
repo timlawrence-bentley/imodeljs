@@ -8,6 +8,7 @@
   "scripts": {
     "compile": "npm run build",
     "build": "npm run copy:assets && tsc 1>&2 && npm run build:extension",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "build:extension": "extension-webpack-tools build -s ./src/extension.ts -o ./lib/extension --sourceMap",
     "copy:assets": "cpx \"./public/**/*\" ./lib/public",
     "clean": "rimraf lib .rush/temp/package-deps*.json",

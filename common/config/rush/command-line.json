@@ -37,6 +37,16 @@
       "allowWarningsInSuccessfulBuild": true
     },
     {
+      "name": "build:ci",
+      "commandKind": "bulk",
+      "summary": "Run build:ci script for each package",
+      "description": "Runs the 'build:ci' script for each package in the monorepo. For most packages, 'build:ci' is equivalent to 'build', 'lint', 'cover' and 'docs'.",
+      "enableParallelism": true,
+      "ignoreMissingScript": false,
+      "ignoreDependencyOrder": false,
+      "allowWarningsInSuccessfulBuild": true
+    },
+    {
       "name": "cover",
       "commandKind": "bulk",
       "summary": "Run cover script for each package",

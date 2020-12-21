@@ -8,6 +8,7 @@
   "scripts": {
     "compile": "npm run build",
     "build": "tsc 1>&2",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "clean": "rimraf lib .rush/temp/package-deps*.json",
     "cover": "npm test -- --cover",
     "docs": "betools docs --includes=../../generated-docs/extract --json=../../generated-docs/core/webgl-compatibility/file.json --tsIndexFile=./webgl-compatibility.ts --onlyJson",

@@ -8,6 +8,7 @@
     "compile": "npm run build",
     "prebuild": "npm run pseudolocalize && npm run copy:assets",
     "build": "npm run prebuild && extension-webpack-tools build -s ./src/iotDemo.ts -o ./lib/extension",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "clean": "rimraf lib .rush/temp/package-deps*.json",
     "copy:assets": "cpx \"./src/public/**/*\" ./lib/extension/",
     "cover": "",

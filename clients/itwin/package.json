@@ -9,6 +9,7 @@
   "scripts": {
     "compile": "npm run build",
     "build": "tsc 1>&2",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "clean": "rimraf lib .rush/temp/package-deps*.json",
     "extract-api": "betools extract-api --entry=itwin-client",
     "docs": "betools docs --includes=../../generated-docs/extract --json=../../generated-docs/core/itwin-client/file.json --tsIndexFile=itwin-client.ts --onlyJson",

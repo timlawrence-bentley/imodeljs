@@ -8,6 +8,7 @@
   "scripts": {
     "compile": "npm run build:backend & tsc",
     "build": "npm run build:backend && npm run build:frontend",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "build:backend": "npm run copy:assets && tsc -p tsconfig.backend.json",
     "build:frontend": "npm run pseudolocalize && cross-env GENERATE_SOURCEMAP=false EXTEND_ESLINT=true react-scripts build",
     "clean": "rimraf lib build .rush/temp/package-deps*.json",

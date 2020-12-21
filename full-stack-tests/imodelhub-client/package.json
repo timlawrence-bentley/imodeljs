@@ -11,6 +11,7 @@
   "scripts": {
     "compile": "npm run build",
     "build": "tsc 1>&2",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "clean": "rimraf lib .rush/temp/package-deps*.json",
     "copy:test-assets": "cpx \"./src/assets/**/*\" ./lib/assets",
     "cover": "npm run cover:imodelhub-client && npm run cover:backend-itwin-client && npm run cover:itwin-client",

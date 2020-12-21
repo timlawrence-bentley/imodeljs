@@ -22,6 +22,7 @@
   "scripts": {
     "compile": "npm run build",
     "build": "npm run extract && tsc 1>&2",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "build:watch": "tsc -w",
     "clean": "rimraf lib .rush/temp/package-deps*.json",
     "cover": "nyc npm test",

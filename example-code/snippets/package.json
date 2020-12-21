@@ -6,6 +6,7 @@
   "scripts": {
     "compile": "npm run build",
     "build": "tsc 1>&2",
+    "build:ci": "npm run build && npm run lint && npm run cover && npm run docs",
     "clean": "rimraf lib .rush/temp/package-deps*.json ../../generated-docs",
     "copy:assets": "cpx \"./src/backend/assets/**/*\" ./lib/backend/assets",
     "extract": "betools extract --fileExt=ts --extractFrom=./src --recursive --out=../../generated-docs/extract",
