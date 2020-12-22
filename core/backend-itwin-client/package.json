@@ -20,7 +20,7 @@
     "cover:integration": "nyc --report-dir ./lib/test/coverage/integration npm run test:integration",
     "docs": "betools docs --includes=../../generated-docs/extract --json=../../generated-docs/core/backend-itwin-client/file.json --tsIndexFile=backend-itwin-client.ts --onlyJson",
     "extract-api": "betools extract-api --entry=backend-itwin-client",
-    "lint": "eslint -f visualstudio ./src/**/*.ts 1>&2",
+    "lint": "eslint -f visualstudio \"./src/**/*.ts\" 1>&2",
     "test": "",
     "test:integration": "betools test --grep=\"#integration\"",
     "test:integration:pr": "betools test --grep=\"#integration\""
