@@ -81,7 +81,7 @@ jobs:
       node ./common/scripts/install-run-rush build -v --to oidc-signin-tool
     displayName: 'Rush build'
 
-  - script: node ./common/scripts/install-run-rush test:integration:pr -v
+  - script: xvfb-run --auto-servernum --server-args='-screen 0, 1600x900x24' node ./common/scripts/install-run-rush test:integration:pr -v
 
   - task: PublishTestResults@2
     displayName: 'Publish Context Registry Client Test Results'
