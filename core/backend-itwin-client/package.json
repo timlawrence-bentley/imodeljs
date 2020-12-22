@@ -22,8 +22,8 @@
     "extract-api": "betools extract-api --entry=backend-itwin-client",
     "lint": "eslint -f visualstudio ./src/**/*.ts 1>&2",
     "test": "",
-    "test:integration": "npm run pretest && betools test --grep=\"#integration\"",
-    "test:integration:pr": "npm run pretest && betools test --grep=\"#integration\""
+    "test:integration": "betools test --grep=\"#integration\"",
+    "test:integration:pr": "betools test --grep=\"#integration\""
   },
   "repository": {
     "type": "git",
