@@ -30,6 +30,7 @@ export * from "./render/webgl/LineCode";
 export * from "./render/webgl/Matrix";
 export * from "./render/webgl/Mesh";
 export * from "./render/webgl/normalizeViewFlags";
+export * from "./render/webgl/ParticleSystem";
 export * from "./render/webgl/PlanarClassifier";
 export * from "./render/webgl/PointString";
 export * from "./render/webgl/Polyline";

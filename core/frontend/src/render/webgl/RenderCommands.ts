@@ -474,6 +474,7 @@ export class RenderCommands {
     this.addGraphics(gfx.foreground);
     this.addBackgroundMapGraphics(gfx.background);
     this.addOverlayGraphics(gfx.overlays);
+    this.target.particleSystem?.addCommands(this);
 
     const dynamics = gfx.dynamics;
     if (dynamics && dynamics.length > 0)

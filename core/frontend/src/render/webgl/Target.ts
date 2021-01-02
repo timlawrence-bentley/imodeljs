@@ -56,6 +56,7 @@ import { TextureHandle } from "./Texture";
 import { TextureDrape } from "./TextureDrape";
 import { EdgeSettings } from "./EdgeSettings";
 import { TargetGraphics } from "./TargetGraphics";
+import { ParticleSystem } from "./ParticleSystem";
 
 function swapImageByte(image: ImageBuffer, i0: number, i1: number) {
   const tmp = image.data[i0];
@@ -115,6 +116,7 @@ export abstract class Target extends RenderTarget implements RenderTargetDebugCo
   private _currentlyDrawingClassifier?: PlanarClassifier;
   private _analysisFraction: number = 0;
   private _antialiasSamples = 1;
+  private _particleSystem?: ParticleSystem;
   // This exists strictly to be forwarded to ScreenSpaceEffects. Do not use it for anything else.
   private _viewport?: Viewport;
   private _screenSpaceEffects: string[] = [];
@@ -156,6 +158,8 @@ export abstract class Target extends RenderTarget implements RenderTargetDebugCo
     this._overlayRenderState.blend.setBlendFunc(GL.BlendFactor.One, GL.BlendFactor.OneMinusSrcAlpha);
     this._compositor = SceneCompositor.create(this);  // compositor is created but not yet initialized... we are still undisposed
     this.renderRect = rect ? rect : new ViewRect();  // if the rect is undefined, expect that it will be updated dynamically in an OnScreenTarget
+    this._particleSystem = ParticleSystem.create();
+
     if (undefined !== System.instance.antialiasSamples)
       this._antialiasSamples = System.instance.antialiasSamples;
     else
@@ -168,6 +172,7 @@ export abstract class Target extends RenderTarget implements RenderTargetDebugCo
   public get drawNonLocatable(): boolean { return this._drawNonLocatable; }
 
   public get techniques(): Techniques { return this.renderSystem.techniques; }
+  public get particleSystem(): ParticleSystem | undefined { return this._particleSystem; }
 
   public get hilites(): Hilites { return this._hilites; }
   public get hiliteSyncTarget(): SyncTarget { return this._hiliteSyncTarget; }
@@ -543,6 +548,7 @@ export abstract class Target extends RenderTarget implements RenderTargetDebugCo
     if (!this.assignDC())
       return;
 
+    this.particleSystem?.update(this);
     this.paintScene(sceneMilSecElapsed);
     this.drawOverlayDecorations();
     assert(this.renderSystem.frameBufferStack.isEmpty);
