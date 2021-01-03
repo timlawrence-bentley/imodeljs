@@ -7,9 +7,9 @@
  */
 
 import { assert, dispose } from "@bentley/bentleyjs-core";
-import {
-  ScreenSpaceEffectBuilder, ScreenSpaceEffectBuilderParams, ScreenSpaceEffectContext, UniformArrayParams, UniformParams, UniformType, VaryingType,
-} from "../effects/ScreenSpaceEffectBuilder";
+import { UniformArrayParams, UniformParams, UniformType } from "../effects/Uniform";
+import { VaryingType } from "../effects/VaryingType";
+import { ScreenSpaceEffectBuilder, ScreenSpaceEffectBuilderParams, ScreenSpaceEffectContext } from "../effects/ScreenSpaceEffectBuilder";
 import { TechniqueId } from "./TechniqueId";
 import { ProgramBuilder, VariableType } from "./ShaderBuilder";
 import { CompileStatus, ShaderProgram } from "./ShaderProgram";
