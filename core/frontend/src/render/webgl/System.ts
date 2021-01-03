@@ -30,7 +30,7 @@ import { RenderClipVolume } from "../RenderClipVolume";
 import { RenderGraphic, RenderGraphicOwner } from "../RenderGraphic";
 import { RenderMemory } from "../RenderMemory";
 import { DebugShaderFile, GLTimerResultCallback, RenderDiagnostics, RenderSystem, RenderSystemDebugControl, RenderTerrainMeshGeometry, TerrainTexture } from "../RenderSystem";
-import { ScreenSpaceEffectBuilder, ScreenSpaceEffectBuilderParams } from "../ScreenSpaceEffectBuilder";
+import { ScreenSpaceEffectBuilder, ScreenSpaceEffectBuilderParams } from "../effects/ScreenSpaceEffectBuilder";
 import { RenderTarget } from "../RenderTarget";
 import { imageElementFromImageSource } from "../../ImageUtil";
 import { BackgroundMapDrape } from "./BackgroundMapDrape";

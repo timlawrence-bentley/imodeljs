@@ -25,7 +25,7 @@ import { createEmptyRenderPlan, RenderPlan } from "../RenderPlan";
 import { PlanarClassifierMap, RenderPlanarClassifier } from "../RenderPlanarClassifier";
 import { RenderTextureDrape, TextureDrapeMap } from "../RenderSystem";
 import { PrimitiveVisibility, RenderTarget, RenderTargetDebugControl } from "../RenderTarget";
-import { ScreenSpaceEffectContext } from "../ScreenSpaceEffectBuilder";
+import { ScreenSpaceEffectContext } from "../effects/ScreenSpaceEffectBuilder";
 import { Scene } from "../Scene";
 import { BranchState } from "./BranchState";
 import { CachedGeometry, SingleTexturedViewportQuadGeometry } from "./CachedGeometry";

@@ -9,7 +9,7 @@
 import { assert, dispose } from "@bentley/bentleyjs-core";
 import {
   ScreenSpaceEffectBuilder, ScreenSpaceEffectBuilderParams, ScreenSpaceEffectContext, UniformArrayParams, UniformParams, UniformType, VaryingType,
-} from "../ScreenSpaceEffectBuilder";
+} from "../effects/ScreenSpaceEffectBuilder";
 import { TechniqueId } from "./TechniqueId";
 import { ProgramBuilder, VariableType } from "./ShaderBuilder";
 import { CompileStatus, ShaderProgram } from "./ShaderProgram";
