@@ -321,6 +321,12 @@
     "EdgeDetectionEffect": {
       "keyin": "fdt effect add edgedetect"
     },
+    "SaturationConfig": {
+      "keyin": "fdt effect config saturation"
+    },
+    "SaturationEffect": {
+      "keyin": "fdt effect add saturation"
+    },
     "ClearEffects": {
       "keyin": "fdt effect clear"
     }
